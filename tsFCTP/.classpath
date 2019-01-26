@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
+	<classpathentry kind="lib" path="D:/DAVID LEONARDO/INVESTIGACIÓN/PROGRAMACIÓN/UNALCOL-MASTER/libs/evolution.jar"/>
+	<classpathentry kind="lib" path="D:/DAVID LEONARDO/INVESTIGACIÓN/PROGRAMACIÓN/UNALCOL-MASTER/libs/optimization.jar"/>
+	<classpathentry kind="lib" path="D:/DAVID LEONARDO/INVESTIGACIÓN/PROGRAMACIÓN/UNALCOL-MASTER/libs/types.jar"/>
+	<classpathentry kind="lib" path="D:/DAVID LEONARDO/INVESTIGACIÓN/PROGRAMACIÓN/UNALCOL-MASTER/libs/core.jar"/>
+	<classpathentry kind="lib" path="D:/DAVID LEONARDO/INVESTIGACIÓN/PROGRAMACIÓN/UNALCOL-MASTER/libs/math.jar"/>
+	<classpathentry kind="lib" path="D:/DAVID LEONARDO/INVESTIGACIÓN/PROGRAMACIÓN/UNALCOL-MASTER/libs/primitives.jar"/>
+	<classpathentry kind="lib" path="D:/DAVID LEONARDO/INVESTIGACIÓN/PROGRAMACIÓN/UNALCOL-MASTER/libs/random.jar"/>
+	<classpathentry kind="lib" path="D:/DAVID LEONARDO/INVESTIGACIÓN/PROGRAMACIÓN/UNALCOL-MASTER/libs/reflection.jar"/>
+	<classpathentry kind="lib" path="D:/DAVID LEONARDO/INVESTIGACIÓN/PROGRAMACIÓN/UNALCOL-MASTER/libs/vc.jar"/>
+	<classpathentry kind="lib" path="D:/DAVID LEONARDO/INVESTIGACIÓN/PROGRAMACIÓN/UNALCOL-MASTER/libs/defs.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
