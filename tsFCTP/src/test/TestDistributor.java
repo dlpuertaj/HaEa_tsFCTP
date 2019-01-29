@@ -2,8 +2,8 @@ package test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.BeforeClass;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import evolution.dlpuertaj.TwoStageFlowNetwork;
@@ -12,21 +12,24 @@ import evolution.dlpuertaj.utils.Distributor;
 
 class TestDistributor {
 
-	public final String INSTANCE = "223";
-	public tsFCTP problem = null; 
-	public TwoStageFlowNetwork network = null;
+	private String INSTANCE = "223";
+	private tsFCTP problem;
+	private TwoStageFlowNetwork network;
 	
-	@BeforeClass
+	@BeforeEach
 	public void init() {
-		// TODO: unit test of problem creation
-		this.problem = new tsFCTP(INSTANCE);
-		this.network = new TwoStageFlowNetwork(this.problem);
+		problem = new tsFCTP(INSTANCE);
+		network = new TwoStageFlowNetwork(this.problem);
 	}
 	
 	@Test
 	void startProductionTest() {
+	
+		System.out.println("Problem: "+problem.I+" - "+problem.J+" - "+problem.K);
+		
 		assertNotNull(this.problem);
 		assertNotNull(this.network);
+		
 		int initialProduction = 0;
 		for(int c : this.network.quantityProduced) {
 			initialProduction += c;

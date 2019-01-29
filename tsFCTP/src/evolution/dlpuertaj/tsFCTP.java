@@ -44,7 +44,7 @@ public class tsFCTP {
 		this.fixedCostS1 = new int[I][J];
 		this.fixedCostS2 = new int[J][K];
 		
-		File file = new File("Instances/"+instance+"/+"+instance+".txt");
+		File file = new File("Instances/"+instance+"/"+instance+".txt");
 		
 		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
 		    br.readLine();
@@ -84,7 +84,9 @@ public class tsFCTP {
                     }
 		    br.close();
 		} catch (FileNotFoundException e) {
+			e.printStackTrace();
 		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
