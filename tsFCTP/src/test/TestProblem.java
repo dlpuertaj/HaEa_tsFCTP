@@ -16,8 +16,6 @@ class TestProblem {
 	void testProblemInstance() {
 		this.problem = new tsFCTP(INSTANCE);
 		assertNotNull(problem);
-		
-		problem.showProblemInstance();
 	}
 
 }

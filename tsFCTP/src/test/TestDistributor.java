@@ -2,7 +2,6 @@ package test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,24 +17,25 @@ class TestDistributor {
 	
 	@BeforeEach
 	public void init() {
+		System.out.println("Unit test for Distributor class...");
 		problem = new tsFCTP(INSTANCE);
 		network = new TwoStageFlowNetwork(this.problem);
 	}
 	
 	@Test
 	void startProductionTest() {
-	
-		System.out.println("Problem: "+problem.I+" - "+problem.J+" - "+problem.K);
+		System.out.println("Testing startProduction method...");
 		
 		assertNotNull(this.problem);
 		assertNotNull(this.network);
 		
+				
 		int initialProduction = 0;
 		for(int c : this.network.quantityProduced) {
 			initialProduction += c;
 		}
 		assertEquals(0, initialProduction);
-		 
+		
 		Distributor.startProduction(this.network);
 		
 		initialProduction = 0;
@@ -43,6 +43,12 @@ class TestDistributor {
 			initialProduction += c;
 		}
 		assertTrue(initialProduction > 0);
+		
+		assertTrue(initialProduction == problem.totalProductionCapacity);
+		
+		for(int i = 0 ; i < network.I ; i++ ) {}
+		
+		
 		//TODO: test production capacity
 		
 	}

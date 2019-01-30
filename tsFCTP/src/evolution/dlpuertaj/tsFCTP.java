@@ -13,8 +13,8 @@ public class tsFCTP {
 	public final int I;
 	public final int J;
 	public final int K;
-	protected int totalDemand;
-	protected int totalProductionCapacity;
+	public int totalDemand;
+	public int totalProductionCapacity;
 	
 	public int[] productionCapacity;
 	public int[] distributionCapacity;// unlimited capacity
