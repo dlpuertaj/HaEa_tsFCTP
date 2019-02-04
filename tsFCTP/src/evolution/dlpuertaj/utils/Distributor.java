@@ -9,6 +9,51 @@ import unalcol.types.collection.vector.Vector;
 
 public class Distributor {
     
+	
+	public static void simpleRandomDistributionWithCapcities(int[] capacities, int[] availableNodes,int quantity) {
+        
+		int[] distributed = new int[capacities.length];
+		
+		Random rand = new Random();
+		int nodes = availableNodes.length;
+		int currentNode = 0;
+		int randomQuantity = 0;
+		int referenceAmount = quantity;
+		while(quantity != 0){
+            
+            if(availableNodes.length == 1){
+            	capacities[availableNodes[0]] += quantity;
+                quantity = 0;
+            }else{
+                currentNode = availableNodes[rand.nextInt(availableNodes.length)];
+                randomQuantity = rand.nextInt((referenceAmount - 1) + 1) + 1;
+                
+                if(randomQuantity > quantity)
+                    randomQuantity = quantity;
+
+                if(randomQuantity > network.productionCapacity[currentNode] - network.quantityProduced[currentNode])
+                    randomQuantity = network.productionCapacity[currentNode] - network.quantityProduced[currentNode];
+                
+                network.quantityProduced[currentNode] += randomQuantity;
+                quantity -= randomQuantity;
+                
+                if(quantity == 0)break;
+                
+                if(network.productionCapacity[currentNode] - network.quantityProduced[currentNode] == 0){
+                	nodes -= 1;
+                    int p = 0;
+                    availableNodes = new int[nodes];
+                    for (int i = 0; i < network.I ; i++) {
+                        if(network.productionCapacity[i] - network.quantityProduced[i] != 0){
+                        	availableNodes[p] = i;
+                            p++;
+                        }
+                    } 
+                }
+            }
+        }
+    }
+	
     /*
     * Method that gives an initial production quantity to all production centers.
     * Given a total demand, this method will add a random quantity to all production centers
@@ -16,20 +61,23 @@ public class Distributor {
     * production capacity of each production center. 
     */
     public static void startProduction(TwoStageFlowNetwork network){
-        int quantity = network.totalDemand;
-        int randomQuantity;
 
         if(network.totalDemand == network.totalProductionCapacity){
             network.quantityProduced = network.productionCapacity.clone();
         }else{
             
+        	int quantity = network.totalDemand;
+            int randomQuantity;
             int plants = network.I;
             int currentPlant;
             int[] availablePlants = new int[network.I];
+            
             for (int i = 0; i < availablePlants.length; i++) {
                 availablePlants[i] = i;
             }
+            
             Random rand = new Random();
+            
             while(quantity != 0){
                 
                 if(plants == 1){

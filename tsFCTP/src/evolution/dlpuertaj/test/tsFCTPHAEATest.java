@@ -33,7 +33,7 @@ import unalcol.tracer.ConsoleTracer;
 import unalcol.tracer.Tracer;
 import unalcol.tracer.VectorTracer;
 import unalcol.types.collection.vector.Vector;
-import unalcol.types.object.Tagged;
+import unalcol.types.object.tagged.Tagged;
 import unalcol.types.real.array.DoubleArrayPlainWrite;
 
 /**

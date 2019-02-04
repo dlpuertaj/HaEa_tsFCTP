@@ -26,11 +26,14 @@ public class tsFCTP {
 	public int[][] transportCostS2;
 	public int[][] fixedCostS2;
 	
-	public tsFCTP(String instance){
+	
+	public tsFCTP(String instance) {
 		String[] inst = instance.split("");
+		
 		this.I = Integer.valueOf(inst[0]);
 		this.J = Integer.valueOf(inst[1]);
 		this.K = Integer.valueOf(inst[2]);
+		
 		this.totalDemand = 0;
 		this.totalProductionCapacity = 0;
 		
@@ -43,6 +46,10 @@ public class tsFCTP {
 		
 		this.fixedCostS1 = new int[I][J];
 		this.fixedCostS2 = new int[J][K];
+	}
+	
+	public void build(String instance){
+		
 		
 		File file = new File("Instances/"+instance+"/"+instance+".txt");
 		
@@ -51,38 +58,59 @@ public class tsFCTP {
 		    br.readLine();
 		    br.readLine();
 		    
+		    //System.out.println("Reading first stage unit transport costs...");
 		    for (int i = 0; i < I; i++) {
 		    	for (int j = 0; j < J; j++) {
-                            this.fixedCostS1[i][j] = Integer.valueOf(br.readLine());
-                        }
+                    this.transportCostS1[i][j] = Integer.valueOf(br.readLine());
+                    //        System.out.println("(" + i + "-" + j +")= " + this.transportCostS1[i][j]);
+                }
 		    }
-		    for (int i = 0; i < J; i++) {
-		    	for (int j = 0; j < K; j++) {
-                            this.fixedCostS2[i][j] = Integer.valueOf(br.readLine());
-                        }
+		    
+		    //System.out.println("Reading first stage fixed costs...");
+		    for (int i = 0; i < I; i++) {
+		    	for (int j = 0; j < J; j++) {
+                    this.fixedCostS1[i][j] = Integer.valueOf(br.readLine());
+                    //      System.out.println("(" + i + "-" + j +")= " + this.fixedCostS1[i][j]);
+                }
 		    }
-		    for (int j = 0; j < I; j++) {
-		    	for (int k = 0; k < J; k++) {
-                            this.transportCostS1[j][k] = Integer.valueOf(br.readLine());
-                        }
-		    }
+		    
+		    //System.out.println("Reading second stage unit transport costs...");
 		    for (int j = 0; j < J; j++) {
 		    	for (int k = 0; k < K; k++) {
-                            this.transportCostS2[j][k] = Integer.valueOf(br.readLine());
-                        }
+                    this.transportCostS2[j][k] = Integer.valueOf(br.readLine());
+                    //      System.out.println("(" + j + "-" + k +")= " + this.transportCostS2[j][k]);
+                }
 		    }
+
+		    //System.out.println("Reading second stage fixed costs...");
+		    for (int j = 0; j < J; j++) {
+		    	for (int k = 0; k < K; k++) {
+                    this.fixedCostS2[j][k] = Integer.valueOf(br.readLine());
+                    //      System.out.println("(" + j + "-" + k +")= " + this.fixedCostS2[j][k]);
+                }
+		    }
+		    		    
+		    //System.out.println("Reading production capacity...");
+            for (int i = 0; i < I; i++) {
+		    	this.productionCapacity[i] = Integer.valueOf(br.readLine());
+		    	this.totalProductionCapacity += this.productionCapacity[i];
+            }
+            //System.out.println("Production capacity= " + Arrays.toString(productionCapacity) + " total production capacity= "+totalProductionCapacity);
+
+            // System.out.println("Reading demand of customers and calculating total demand...");
 		    for (int k = 0; k < K; k++) {
 		    	this.customerDemand[k] = Integer.valueOf(br.readLine());
 		    	this.totalDemand += this.customerDemand[k];
-                    }
-                    for (int i = 0; i < I; i++) {
-		    	this.productionCapacity[i] = Integer.valueOf(br.readLine());
-		    	this.totalProductionCapacity += this.productionCapacity[i];
-                    }
-		    for (int j = 0; j < J; j++) {
-                        this.distributionCapacity[j] = totalProductionCapacity;
-                    }
+            }
+		    //System.out.println("Customer demands= " + Arrays.toString(customerDemand) + " total demand= "+totalDemand);
+		    
+		    //System.out.println("Reading Distribution capacity...");
+            for (int j = 0; j < J; j++) {
+                this.distributionCapacity[j] = totalProductionCapacity;
+            }
 		    br.close();
+		    //System.out.println("Distribution capacity= " + Arrays.toString(distributionCapacity));
+		    
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -154,33 +182,4 @@ public class tsFCTP {
 		System.out.println("Production capacity");
 		System.out.println(Arrays.toString(productionCapacity));
 	}
-        
-        public static void main(String[] argv){
-            String[] instance = {"223",
-                                 "224",
-                                 "225",
-                                 "226",
-                                 "227",
-                                 "233",
-                                 "234",
-                                 "236",
-                                 "238",
-                                 "248",
-                                 "256",
-                                 "324",
-                                 "325",
-                                 "334",
-                                 "335",
-                                 "336",
-                                 "337a",
-                                 "337b",
-                                 "346",
-                                 "435",};
-            
-            for (String string : instance) {
-                tsFCTP problem = new tsFCTP(string);
-                problem.showProblemInstance();
-            }
-            
-        }
 }

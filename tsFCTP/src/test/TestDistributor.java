@@ -19,6 +19,7 @@ class TestDistributor {
 	public void init() {
 		System.out.println("Unit test for Distributor class...");
 		problem = new tsFCTP(INSTANCE);
+		problem.build(INSTANCE);
 		network = new TwoStageFlowNetwork(this.problem);
 	}
 	
@@ -28,7 +29,6 @@ class TestDistributor {
 		
 		assertNotNull(this.problem);
 		assertNotNull(this.network);
-		
 				
 		int initialProduction = 0;
 		for(int c : this.network.quantityProduced) {
@@ -44,12 +44,15 @@ class TestDistributor {
 		}
 		assertTrue(initialProduction > 0);
 		
-		assertTrue(initialProduction == problem.totalProductionCapacity);
+		for(int i = 0 ; i < network.I ; i++ ) {
+			assertTrue(network.quantityProduced[i] <= problem.productionCapacity[i]);
+		}
 		
-		for(int i = 0 ; i < network.I ; i++ ) {}
+	}
+	
+	@Test
+	void testFirstStageInitialDistribution() {
 		
-		
-		//TODO: test production capacity
 		
 	}
 
