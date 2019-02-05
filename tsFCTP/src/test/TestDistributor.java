@@ -51,9 +51,22 @@ class TestDistributor {
 	}
 	
 	@Test
-	void testFirstStageInitialDistribution() {
+	void testRandomAllocationWithCapacities() {
+		int[] capacities =	problem.productionCapacity;
+		int[] availableNodes = new int[capacities.length];
+		int quantity = network.totalProductionCapacity + 250;
+		for(int i = 0 ; i < availableNodes.length ; i++){
+			availableNodes[i] = i;
+		}
 		
+		int[] allocated = Distributor.randomAllocationWithCapacities(capacities, availableNodes, quantity);
 		
+		for(int i = 0 ; i < availableNodes.length ; i++){
+			assertTrue(allocated[i] >= 0);
+			assertTrue(allocated[i] <= capacities[i]);
+			quantity += allocated[i];
+		}
+		assertEquals(250, quantity);
 	}
 
 }

@@ -10,9 +10,9 @@ import unalcol.types.collection.vector.Vector;
 public class Distributor {
     
 	
-	public static void simpleRandomDistributionWithCapcities(int[] capacities, int[] availableNodes,int quantity) {
+	public static int[] randomAllocationWithCapacities(int[] capacities, int[] availableNodes,int quantity) {
         
-		int[] distributed = new int[capacities.length];
+		int[] allocated = new int[capacities.length];
 		
 		Random rand = new Random();
 		int nodes = availableNodes.length;
@@ -22,36 +22,45 @@ public class Distributor {
 		while(quantity != 0){
             
             if(availableNodes.length == 1){
-            	capacities[availableNodes[0]] += quantity;
-                quantity = 0;
+            	if(capacities[availableNodes[0]] - allocated[availableNodes[0]] < quantity) //it must not be grater than the available quantity
+                    randomQuantity = capacities[availableNodes[0]] - allocated[availableNodes[0]];
+            	
+            	allocated[availableNodes[0]] += randomQuantity;
+            	
+            	if(capacities[availableNodes[0]] - allocated[availableNodes[0]] == 0)
+            		break;
+            	
+                quantity = randomQuantity;
             }else{
-                currentNode = availableNodes[rand.nextInt(availableNodes.length)];
-                randomQuantity = rand.nextInt((referenceAmount - 1) + 1) + 1;
+                currentNode = availableNodes[rand.nextInt(availableNodes.length)]; //random selection of node
+                randomQuantity = rand.nextInt((referenceAmount - 1) + 1) + 1; // random quantity
                 
-                if(randomQuantity > quantity)
+                if(randomQuantity > quantity) //it must not be grater than the available quantity
                     randomQuantity = quantity;
 
-                if(randomQuantity > network.productionCapacity[currentNode] - network.quantityProduced[currentNode])
-                    randomQuantity = network.productionCapacity[currentNode] - network.quantityProduced[currentNode];
+                //it must not be greater the the remaining capacity
+                if(randomQuantity > capacities[currentNode] - allocated[currentNode])
+                    randomQuantity = capacities[currentNode] - allocated[currentNode];
                 
-                network.quantityProduced[currentNode] += randomQuantity;
+                allocated[currentNode] += randomQuantity;
                 quantity -= randomQuantity;
                 
                 if(quantity == 0)break;
                 
-                if(network.productionCapacity[currentNode] - network.quantityProduced[currentNode] == 0){
+                if(capacities[currentNode] - allocated[currentNode] == 0){
                 	nodes -= 1;
-                    int p = 0;
+                    int counter = 0;
                     availableNodes = new int[nodes];
-                    for (int i = 0; i < network.I ; i++) {
-                        if(network.productionCapacity[i] - network.quantityProduced[i] != 0){
-                        	availableNodes[p] = i;
-                            p++;
+                    for (int i = 0; i < capacities.length ; i++) {
+                        if(capacities[i] - allocated[i] != 0){
+                        	availableNodes[counter] = i;
+                            counter++;
                         }
                     } 
                 }
             }
         }
+		return allocated;
     }
 	
     /*
