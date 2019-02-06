@@ -9,7 +9,12 @@ import unalcol.types.collection.vector.Vector;
 
 public class Distributor {
     
-	
+	/**
+	 * Method that allocates random quantities to random nodes (facilities) considering capacities
+	 * @param capacities
+	 * @param availableNodes
+	 * @param quantity
+	 * */
 	public static int[] randomAllocationWithCapacities(int[] capacities, int[] availableNodes,int quantity) {
         
 		int[] allocated = new int[capacities.length];
@@ -21,7 +26,7 @@ public class Distributor {
 		int referenceAmount = quantity;
 		while(quantity != 0){
             
-            if(availableNodes.length == 1){
+            if(availableNodes.length == 1){// if there is only one node left
             	if(capacities[availableNodes[0]] - allocated[availableNodes[0]] < quantity) //it must not be grater than the available quantity
                     randomQuantity = capacities[availableNodes[0]] - allocated[availableNodes[0]];
             	
@@ -63,11 +68,12 @@ public class Distributor {
 		return allocated;
     }
 	
-    /*
+    /**
     * Method that gives an initial production quantity to all production centers.
     * Given a total demand, this method will add a random quantity to all production centers
     * choosing each one randomly until the total demand is 0 and without exceeding the 
     * production capacity of each production center. 
+    * @param network 
     */
     public static void startProduction(TwoStageFlowNetwork network){
 
@@ -75,17 +81,20 @@ public class Distributor {
             network.quantityProduced = network.productionCapacity.clone();
         }else{
             
-        	int quantity = network.totalDemand;
-            int randomQuantity;
-            int plants = network.I;
-            int currentPlant;
+        	int quantity = network.totalProductionCapacity;
+            //int randomQuantity;
+            //int plants = network.I;
+            //int currentPlant;
             int[] availablePlants = new int[network.I];
             
             for (int i = 0; i < availablePlants.length; i++) {
                 availablePlants[i] = i;
             }
             
-            Random rand = new Random();
+            int[] initialProduction = randomAllocationWithCapacities(network.productionCapacity, availablePlants, quantity);
+            
+            network.quantityProduced = initialProduction;
+            /*Random rand = new Random();
             
             while(quantity != 0){
                 
@@ -119,7 +128,7 @@ public class Distributor {
                         } 
                     }
                 }
-            }
+            }*/
         }
     }
     

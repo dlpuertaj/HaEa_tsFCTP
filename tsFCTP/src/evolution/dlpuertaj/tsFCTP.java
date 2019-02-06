@@ -46,6 +46,8 @@ public class tsFCTP {
 		
 		this.fixedCostS1 = new int[I][J];
 		this.fixedCostS2 = new int[J][K];
+		
+		build(instance);
 	}
 	
 	public void build(String instance){
