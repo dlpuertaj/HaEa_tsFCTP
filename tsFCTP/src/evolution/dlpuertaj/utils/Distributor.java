@@ -68,6 +68,12 @@ public class Distributor {
 		return allocated;
     }
 	
+	
+	//TODO
+	public static int[][] randomTransportaion(){
+		return null;
+	}
+	
     /**
     * Method that gives an initial production quantity to all production centers.
     * Given a total demand, this method will add a random quantity to all production centers
@@ -82,9 +88,6 @@ public class Distributor {
         }else{
             
         	int quantity = network.totalProductionCapacity;
-            //int randomQuantity;
-            //int plants = network.I;
-            //int currentPlant;
             int[] availablePlants = new int[network.I];
             
             for (int i = 0; i < availablePlants.length; i++) {
@@ -94,46 +97,16 @@ public class Distributor {
             int[] initialProduction = randomAllocationWithCapacities(network.productionCapacity, availablePlants, quantity);
             
             network.quantityProduced = initialProduction;
-            /*Random rand = new Random();
-            
-            while(quantity != 0){
-                
-                if(plants == 1){
-                	network.quantityProduced[availablePlants[0]] += quantity;
-                    quantity = 0;
-                }else{
-                    currentPlant = availablePlants[rand.nextInt(plants)];
-                    randomQuantity = rand.nextInt((network.totalDemand - 1) + 1) + 1;
-                    
-                    if(randomQuantity > quantity)
-                        randomQuantity = quantity;
-
-                    if(randomQuantity > network.productionCapacity[currentPlant] - network.quantityProduced[currentPlant])
-                        randomQuantity = network.productionCapacity[currentPlant] - network.quantityProduced[currentPlant];
-                    
-                    network.quantityProduced[currentPlant] += randomQuantity;
-                    quantity -= randomQuantity;
-                    
-                    if(quantity == 0)break;
-                    
-                    if(network.productionCapacity[currentPlant] - network.quantityProduced[currentPlant] == 0){
-                        plants -= 1;
-                        int p = 0;
-                        availablePlants = new int[plants];
-                        for (int i = 0; i < network.I ; i++) {
-                            if(network.productionCapacity[i] - network.quantityProduced[i] != 0){
-                                availablePlants[p] = i;
-                                p++;
-                            }
-                        } 
-                    }
-                }
-            }*/
+            network.productionBalance = network.quantityProduced;
         }
     }
     
     /*
-    *
+    * Method used to allocate product from production centers to distribution centers
+    * considering amount of product in each production center.
+    * Remember that the distribution capacity is unlimited.
+    * 
+    * @param network
     */
     public static void firstStageInitialDistribution(TwoStageFlowNetwork network){
 		
@@ -144,11 +117,9 @@ public class Distributor {
         int plants = 0;
 
 
-//Initialize available plants, production balance and DCs according to newFlow parameter		
+        //Initialize available plants, production balance and DCs according to newFlow parameter		
 
         network.transportedProductS1 = new int[network.I][network.J];
-        network.productionBalance = network.quantityProduced.clone();
-
 
         for (int i = 0; i < network.I; i++) {
                 if(network.productionBalance[i] > 0)
