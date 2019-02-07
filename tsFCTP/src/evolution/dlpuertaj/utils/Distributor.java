@@ -84,7 +84,8 @@ public class Distributor {
     public static void startProduction(TwoStageFlowNetwork network){
 
         if(network.totalDemand == network.totalProductionCapacity){
-            network.quantityProduced = network.productionCapacity.clone();
+            network.quantityProduced = network.productionCapacity;
+            network.productionBalance = network.quantityProduced;
         }else{
             
         	int quantity = network.totalProductionCapacity;
@@ -94,9 +95,7 @@ public class Distributor {
                 availablePlants[i] = i;
             }
             
-            int[] initialProduction = randomAllocationWithCapacities(network.productionCapacity, availablePlants, quantity);
-            
-            network.quantityProduced = initialProduction;
+            network.quantityProduced = randomAllocationWithCapacities(network.productionCapacity, availablePlants, quantity);
             network.productionBalance = network.quantityProduced;
         }
     }
@@ -105,81 +104,84 @@ public class Distributor {
     * Method used to allocate product from production centers to distribution centers
     * considering amount of product in each production center.
     * Remember that the distribution capacity is unlimited.
+    * The method selects a random plant and the uses the random allocation algorithm
     * 
     * @param network
     */
     public static void firstStageInitialDistribution(TwoStageFlowNetwork network){
 		
         int currentPlant;
-        int currentDC;
-        int randomQuantity;
         int quantity;
-        int plants = 0;
-
-
-        //Initialize available plants, production balance and DCs according to newFlow parameter		
-
-        network.transportedProductS1 = new int[network.I][network.J];
+        int [] availableDCs = new int[network.J];
+        Vector<Integer> availablePlants = new Vector<>();
 
         for (int i = 0; i < network.I; i++) {
-                if(network.productionBalance[i] > 0)
-                        plants++;
+            if(network.productionBalance[i] > 0) 
+            	availablePlants.add(i);
         }
-        int[] availablePlants = new int[plants];
-        plants = 0;
-        for (int i = 0; i < network.I; i++) {
-                if(network.productionBalance[i] > 0){
-                        availablePlants[plants] = i;
-                        plants++;
-                }
+        
+        for (int j = 0; j < network.J; j++) { 
+            	availableDCs[j] = j;
         }
-
+        
         Random randPlant = new Random();
-        Random randDC = new Random();
-        Random rand = new Random();
-        plants = availablePlants.length;
-        while(plants != 0){//until all the product has been sent
+       
+        while(availablePlants.size() != 1){
 
-            if(plants == 1){
+        	int index = randPlant.nextInt(availablePlants.size());
+        	//Select a plant
+            currentPlant = availablePlants.get(index);
+            quantity = network.productionBalance[currentPlant];
+            
+            network.transportedProductS1[currentPlant] = randomAllocationWithCapacities(network.distributionCapacity,availableDCs, quantity);
+            
+            network.productionBalance[currentPlant] = 0;
+            
+            //calculate ditribution inbound
+            for(int j = 0 ; j < network.J ; j++) {
+            	network.distributionInbound[j] += network.transportedProductS1[currentPlant][j]; 
+            }
+            
+            availablePlants.del(currentPlant);
+            
+            
+            //currentDC = randDC.nextInt(network.J);
+            //randomQuantity = rand.nextInt(((network.quantityProduced[currentPlant]) - 1) + 1) + 1;
 
-                quantity = network.productionBalance[availablePlants[0]];
+            //send random quantity
+            //if(randomQuantity > network.productionBalance[currentPlant])
+            //        randomQuantity = network.productionBalance[currentPlant];
+            /*
+            network.transportedProductS1[currentPlant][currentDC] += randomQuantity;
+            network.productionBalance[currentPlant] -= randomQuantity;
+            network.distributionInbound[currentDC] += randomQuantity;
 
-                while(quantity != 0){
-                    //Send remaining product to randomly selected DCs					
-                    currentDC = randDC.nextInt(network.J);
-                    network.transportedProductS1[availablePlants[0]][currentDC] += quantity;
-                    network.productionBalance[availablePlants[0]] -= quantity;
-                    network.distributionInbound[currentDC] += quantity;
-                    quantity -= quantity;					
-                }
-                break;
-            }else{
-                //Select plant and edge to DC
-                currentPlant = availablePlants[randPlant.nextInt(plants)];
-                currentDC = randDC.nextInt(network.J);
-                randomQuantity = rand.nextInt(((network.quantityProduced[currentPlant]) - 1) + 1) + 1;
-
-                //send random quantity
-                if(randomQuantity > network.productionBalance[currentPlant])
-                        randomQuantity = network.productionBalance[currentPlant];
-
-                network.transportedProductS1[currentPlant][currentDC] += randomQuantity;
-                network.productionBalance[currentPlant] -= randomQuantity;
-                network.distributionInbound[currentDC] += randomQuantity;
-
-                if(network.productionBalance[currentPlant] == 0){
-                    //current plant is no lobger available
-                    plants--;
-                    availablePlants = new int[plants];
-                    int p = 0;
-                    for (int i = 0; i < network.I ; i++) {
-                        if(network.productionBalance[i] != 0){
-                                availablePlants[p] = i;
-                                p++;
-                        }
+            if(network.productionBalance[currentPlant] == 0){
+                //current plant is no lobger available
+                plants--;
+                availablePlants = new int[plants];
+                int p = 0;
+                for (int i = 0; i < network.I ; i++) {
+                    if(network.productionBalance[i] != 0){
+                            availablePlants[p] = i;
+                            p++;
                     }
                 }
+            }*/        
+        }
+        
+        if(availablePlants.size() == 1){
+
+            quantity = network.productionBalance[availablePlants.get(0)];
+            network.transportedProductS1[availablePlants.get(0)] = randomAllocationWithCapacities(network.distributionCapacity,availableDCs, quantity);
+
+        	network.productionBalance[availablePlants.get(0)] = 0;
+            
+            for(int j = 0 ; j < network.J ; j++) {
+            	network.distributionInbound[j] += network.transportedProductS1[availablePlants.get(0)][j]; 
             }
+            
+            availablePlants.del(availablePlants.get(0));
         }
     }
     

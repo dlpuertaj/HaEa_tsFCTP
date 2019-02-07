@@ -20,7 +20,7 @@ class TestDistributor {
 	
 	@BeforeEach
 	public void init() {
-		System.out.println("Unit test for Distributor class...");
+		System.out.println("\nBuilding instances and networks...");
 		
 		problems = new tsFCTP[INSTANCES.length];
 		networks = new TwoStageFlowNetwork[INSTANCES.length];
@@ -33,7 +33,7 @@ class TestDistributor {
 	}
 	
 	@Test
-	void startProductionTest() {
+	public void startProductionTest() {
 		System.out.println("Testing startProduction method...");
 		
 		for(int i = 0 ; i < INSTANCES.length ; i++) {
@@ -63,11 +63,10 @@ class TestDistributor {
 			}
 			System.out.println("...ok");
 		}
-		System.out.println();
 	}
 	
 	@Test
-	void testRandomAllocationWithCapacities() {
+	public void testRandomAllocationWithCapacities() {
 		System.out.println("Testing randomAllocationWithCapacities method...");
 		
 		for(int i = 0 ; i < INSTANCES.length ; i++) {
@@ -89,7 +88,33 @@ class TestDistributor {
 			}
 			System.out.println("...ok");
 		}
-		System.out.println();
 	}
-
+	
+	@Test
+	public void testFirstStageInitialDistribution() {
+		System.out.println("Testing firstStageInitialDistributions method...");
+		
+		int totalDistributionInbound;
+		
+		for(int i = 0 ; i < INSTANCES.length ; i++) {
+			System.out.print("Testig with instance: " + INSTANCES[i]);
+			
+			Distributor.startProduction(this.networks[i]);
+			
+			totalDistributionInbound = 0;
+			Distributor.firstStageInitialDistribution(networks[i]);
+			
+			for(int balance : networks[i].productionBalance) {
+				assertEquals(0, balance);
+			}
+			
+			for(int inbound : networks[i].distributionInbound) {
+				assertTrue(inbound <= networks[i].totalDemand);
+				totalDistributionInbound += inbound;
+			}
+			
+			assertEquals(networks[i].totalProductionCapacity, totalDistributionInbound);	
+			System.out.println("...ok");
+		}
+	}
 }
