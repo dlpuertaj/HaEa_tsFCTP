@@ -113,7 +113,7 @@ class TestDistributor {
 				totalDistributionInbound += inbound;
 			}
 			
-			assertEquals(networks[i].totalProductionCapacity, totalDistributionInbound);	
+			assertEquals(networks[i].totalProductionCapacity, totalDistributionInbound);//TODO: chage	
 			System.out.println("...ok");
 		}
 	}

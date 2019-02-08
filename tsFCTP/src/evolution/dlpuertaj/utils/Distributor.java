@@ -88,7 +88,7 @@ public class Distributor {
             network.productionBalance = network.quantityProduced;
         }else{
             
-        	int quantity = network.totalProductionCapacity;
+        	int quantity = network.totalDemand;
             int[] availablePlants = new int[network.I];
             
             for (int i = 0; i < availablePlants.length; i++) {
