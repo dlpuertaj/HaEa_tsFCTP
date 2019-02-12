@@ -119,5 +119,22 @@ class TestDistributor {
 	}
 	
 	@Test
-	public void testSecondStageInitialDistribution() {}
+	public void testSecondStageInitialDistribution() {
+		System.out.println("Testing secondStageInitialDistributions method...");
+		
+		int totalDistributionOutbound;
+		
+		for(int i = 0 ; i < INSTANCES.length ; i++) {
+			System.out.print("Testig with instance: " + INSTANCES[i]);
+			
+			Distributor.startProduction(this.networks[i]);
+			
+			totalDistributionOutbound = 0;
+			Distributor.firstStageInitialDistribution(networks[i]);
+			
+			Distributor.secondStageInitialDistribution(networks[i]);
+			
+			//TODO: finish
+		}
+	}
 }
