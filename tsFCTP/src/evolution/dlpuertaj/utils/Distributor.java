@@ -165,44 +165,29 @@ public class Distributor {
     */
     public static void secondStageInitialDistribution(TwoStageFlowNetwork network){
 
-        int currentCustomer;
-        int currentDC = 0;
-        int randomQuantity;
-        int quantity = 0;
-        int dcs = 0;
-
-        int[] distributionBalance;
-        int[] availableCustomers = new int[network.K];
-
-        distributionBalance = network.distributionInbound.clone(); // this is not necessary
+    	Vector<Integer> availableDCS = new Vector<>();
+    	int[] availableCustomers = new int[network.K];
+    	int[] demands = network.customerBalance;
+    	int quantity = network.totalDemand;
+    	int currentDC = 0;
         
+                
         for (int j = 0; j < network.J; j++) {
-            if(network.distributionInbound[j] >0)
-                dcs++;
+            if(network.distributionInbound[j] > 0)
+                availableDCS.add(new Integer(j));
         }
-        int[] availableDC = new int[dcs];
-        dcs = 0;
-        for (int j = 0; j < network.J; j++) {
-            if(network.distributionInbound[j] > 0){
-                availableDC[dcs] = j;
-                dcs++;
-            }
-        }
-
-        for (int k = 0; k < network.K; k++) { // this is not necessary. Can be equal to customer balance
-                availableCustomers[k] = k;
-        }
-
-        Random randCustomer = new Random();
-        Random randDC = new Random();
+        
         Random rand = new Random();
-        int Q = network.totalDemand;
-        int customers = network.K;
-        dcs = availableDC.length;
+                
+        while(availableDCS.size() != 1){//until all the product has been sent. But it can be until all DC´s are balanced
 
-        while(Q != 0){//until all the product has been sent. But can be until all DC´s are balanced
-
-            if(dcs == 1 && customers == 1){
+        	currentDC = availableDCS.get(rand.nextInt(availableDCS.size()));
+            network.transportedProductS2[currentDC] = randomAllocationWithCapacities(demands, availableCustomers, quantity);
+            
+            //TODO update available distribution centers and available customers
+            //TODO update available customers
+            
+        	if(dcs == 1 && customers == 1){
                 //Send all the remaining product
                 quantity = Q;
                 network.transportedProductS2[availableDC[0]][availableCustomers[0]] += quantity;
