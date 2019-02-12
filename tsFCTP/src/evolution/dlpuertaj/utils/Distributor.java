@@ -142,32 +142,7 @@ public class Distributor {
             	network.distributionInbound[j] += network.transportedProductS1[currentPlant][j]; 
             }
             
-            availablePlants.del(currentPlant);
-            
-            
-            //currentDC = randDC.nextInt(network.J);
-            //randomQuantity = rand.nextInt(((network.quantityProduced[currentPlant]) - 1) + 1) + 1;
-
-            //send random quantity
-            //if(randomQuantity > network.productionBalance[currentPlant])
-            //        randomQuantity = network.productionBalance[currentPlant];
-            /*
-            network.transportedProductS1[currentPlant][currentDC] += randomQuantity;
-            network.productionBalance[currentPlant] -= randomQuantity;
-            network.distributionInbound[currentDC] += randomQuantity;
-
-            if(network.productionBalance[currentPlant] == 0){
-                //current plant is no lobger available
-                plants--;
-                availablePlants = new int[plants];
-                int p = 0;
-                for (int i = 0; i < network.I ; i++) {
-                    if(network.productionBalance[i] != 0){
-                            availablePlants[p] = i;
-                            p++;
-                    }
-                }
-            }*/        
+            availablePlants.del(currentPlant);       
         }
         
         if(availablePlants.size() == 1){
@@ -199,25 +174,22 @@ public class Distributor {
         int[] distributionBalance;
         int[] availableCustomers = new int[network.K];
 
-
-        //Initialize available plants, production balance and DCs according to newFlow parameter		
-
-        network.transportedProductS2 = new int[network.J][network.K];
-        network.distributionOutbound = new int[network.J];
-        distributionBalance = network.distributionInbound.clone();
+        distributionBalance = network.distributionInbound.clone(); // this is not necessary
+        
         for (int j = 0; j < network.J; j++) {
-                if(network.distributionInbound[j] >0)
-                        dcs++;
+            if(network.distributionInbound[j] >0)
+                dcs++;
         }
         int[] availableDC = new int[dcs];
         dcs = 0;
         for (int j = 0; j < network.J; j++) {
-                if(network.distributionInbound[j] > 0){
-                        availableDC[dcs] = j;
-                        dcs++;
-                }
+            if(network.distributionInbound[j] > 0){
+                availableDC[dcs] = j;
+                dcs++;
+            }
         }
-        for (int k = 0; k < network.K; k++) {
+
+        for (int k = 0; k < network.K; k++) { // this is not necessary. Can be equal to customer balance
                 availableCustomers[k] = k;
         }
 
@@ -228,7 +200,7 @@ public class Distributor {
         int customers = network.K;
         dcs = availableDC.length;
 
-        while(Q != 0){//until all the product has been sent
+        while(Q != 0){//until all the product has been sent. But can be until all DC´s are balanced
 
             if(dcs == 1 && customers == 1){
                 //Send all the remaining product
