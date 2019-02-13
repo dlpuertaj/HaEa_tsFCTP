@@ -35,14 +35,14 @@ class TestDistributor {
 	@Test
 	public void startProductionTest() {
 		System.out.println("Testing startProduction method...");
-		
+		int initialProduction;
 		for(int i = 0 ; i < INSTANCES.length ; i++) {
 			System.out.print("Testig with instance: " + INSTANCES[i]);
 			
 			assertNotNull(this.problems[i]);
 			assertNotNull(this.networks[i]);
-					
-			int initialProduction = 0;
+			initialProduction = 0;
+			
 			for(int c : this.networks[i].quantityProduced) {
 				initialProduction += c;
 			}
@@ -52,9 +52,11 @@ class TestDistributor {
 			Distributor.startProduction(this.networks[i]);
 			
 			initialProduction = 0;
-			for(int c : this.networks[i].quantityProduced) {
-				initialProduction += c;
+			for(int pc = 0 ; pc < networks[i].I ; pc++) {
+				initialProduction += networks[i].quantityProduced[pc];
+				assertTrue(networks[i].quantityProduced[pc] <= networks[i].productionCapacity[pc]);
 			}
+			
 			assertTrue(initialProduction <= networks[i].totalProductionCapacity);
 			assertTrue(initialProduction >= networks[i].totalDemand);
 			
@@ -74,7 +76,7 @@ class TestDistributor {
 			
 			int[] capacities =	problems[i].productionCapacity;
 			int[] availableNodes = new int[capacities.length];
-			int quantity = networks[i].totalProductionCapacity + 250;
+			int quantity = networks[i].totalProductionCapacity;
 			
 			for(int j = 0 ; j < availableNodes.length ; j++){
 				availableNodes[j] = j;
@@ -99,13 +101,14 @@ class TestDistributor {
 		for(int i = 0 ; i < INSTANCES.length ; i++) {
 			System.out.print("Testig with instance: " + INSTANCES[i]);
 			
-			Distributor.startProduction(this.networks[i]);
-			
 			totalDistributionInbound = 0;
+			
+			Distributor.startProduction(networks[i]);
+			
 			Distributor.firstStageInitialDistribution(networks[i]);
 			
-			for(int balance : networks[i].productionBalance) {
-				assertEquals(0, balance);
+			for(int pc = 0 ; pc < networks[i].I ; pc++) {
+				assertEquals(0, networks[i].productionBalance[pc]);
 			}
 			
 			for(int inbound : networks[i].distributionInbound) {
@@ -113,7 +116,7 @@ class TestDistributor {
 				totalDistributionInbound += inbound;
 			}
 			
-			assertEquals(networks[i].totalProductionCapacity, totalDistributionInbound);	
+			assertTrue(networks[i].totalProductionCapacity >= totalDistributionInbound);
 			System.out.println("...ok");
 		}
 	}
@@ -125,15 +128,16 @@ class TestDistributor {
 		int totalDistributionOutbound;
 		
 		for(int i = 0 ; i < INSTANCES.length ; i++) {
+			totalDistributionOutbound = 0;
 			System.out.print("Testig with instance: " + INSTANCES[i]);
 			
 			Distributor.startProduction(this.networks[i]);
 			
-			totalDistributionOutbound = 0;
 			Distributor.firstStageInitialDistribution(networks[i]);
 			
 			Distributor.secondStageInitialDistribution(networks[i]);
 			
+			System.out.println(totalDistributionOutbound);
 			//TODO: finish
 		}
 	}

@@ -26,16 +26,11 @@ public class Distributor {
 		int referenceAmount = quantity;
 		while(quantity != 0){
             
-            if(availableNodes.length == 1){// if there is only one node left
-            	if(capacities[availableNodes[0]] - allocated[availableNodes[0]] < quantity) //it must not be grater than the available quantity
-                    randomQuantity = capacities[availableNodes[0]] - allocated[availableNodes[0]];
-            	
-            	allocated[availableNodes[0]] += randomQuantity;
-            	
-            	if(capacities[availableNodes[0]] - allocated[availableNodes[0]] == 0)
-            		break;
-            	
-                quantity = randomQuantity;
+            if(availableNodes.length == 1){// if there is only one node left, send all the remaining quantity
+ 	
+            	allocated[availableNodes[0]] += quantity;
+            	break;
+                
             }else{
                 currentNode = availableNodes[rand.nextInt(availableNodes.length)]; //random selection of node
                 randomQuantity = rand.nextInt((referenceAmount - 1) + 1) + 1; // random quantity
@@ -68,12 +63,6 @@ public class Distributor {
 		return allocated;
     }
 	
-	
-	//TODO
-	public static int[][] randomTransportaion(){
-		return null;
-	}
-	
     /**
     * Method that gives an initial production quantity to all production centers.
     * Given a total demand, this method will add a random quantity to all production centers
@@ -100,7 +89,7 @@ public class Distributor {
         }
     }
     
-    /*
+    /**
     * Method used to allocate product from production centers to distribution centers
     * considering amount of product in each production center.
     * Remember that the distribution capacity is unlimited.
@@ -160,15 +149,15 @@ public class Distributor {
         }
     }
     
-    /*
+    /**
     *
     */
     public static void secondStageInitialDistribution(TwoStageFlowNetwork network){
 
     	Vector<Integer> availableDCS = new Vector<>();
     	int[] availableCustomers = new int[network.K];
-    	int[] demands = network.customerBalance;
-    	int quantity = network.totalDemand;
+    	
+    	int quantity;
     	int currentDC = 0;
         
                 
@@ -176,137 +165,59 @@ public class Distributor {
             if(network.distributionInbound[j] > 0)
                 availableDCS.add(new Integer(j));
         }
+        for(int k = 0 ; k < network.K ; k++) {
+        	availableCustomers[k] = k;
+        }
         
         Random rand = new Random();
                 
-        while(availableDCS.size() != 1){//until all the product has been sent. But it can be until all DC´s are balanced
+        while(availableDCS.size() != 0){//until all the product has been sent. But it can be until all DC´s are balanced
 
+        	//Select a distribution center and send all the in-bound product using random allocation
         	currentDC = availableDCS.get(rand.nextInt(availableDCS.size()));
-            network.transportedProductS2[currentDC] = randomAllocationWithCapacities(demands, availableCustomers, quantity);
+        	
+        	quantity = network.distributionInbound[currentDC];
             
-            //TODO update available distribution centers and available customers
-            //TODO update available customers
+        	network.transportedProductS2[currentDC] = randomAllocationWithCapacities(network.customerBalance, availableCustomers, quantity);
             
-        	if(dcs == 1 && customers == 1){
-                //Send all the remaining product
-                quantity = Q;
-                network.transportedProductS2[availableDC[0]][availableCustomers[0]] += quantity;
-                network.distributionOutbound[availableDC[0]] += quantity;
-                distributionBalance[availableDC[0]] -= quantity;
-                network.customerBalance[availableCustomers[0]] -= quantity;
-                Q -= quantity;
-
-            }else if(dcs == 1){
-                    //Send random quantities to available customers
-                while(customers != 1){
-                    //Send remaining product to randomly selected DCs
-                    quantity = Q;
-                    currentCustomer = availableCustomers[randCustomer.nextInt(availableCustomers.length)];
-
-                    if(quantity > network.customerBalance[currentCustomer])
-                            quantity = network.customerBalance[currentCustomer];
-
-                    network.transportedProductS2[availableDC[0]][currentCustomer] += quantity;
-                    network.distributionOutbound[availableDC[0]] += quantity;
-                    distributionBalance[availableDC[0]] -= quantity;
-                    network.customerBalance[currentCustomer] -= quantity;
-                    Q -= quantity;
-
-
-                    if(network.customerBalance[currentCustomer] == 0){
-                        //Customer demand is met
-                        customers--;		
-                        availableCustomers = new int[customers];
-
-                        int c = 0;
-                        for (int k = 0; k < network.K ; k++) {
-                            if(network.customerBalance[k] > 0){
-                                availableCustomers[c] = k;
-                                c++;
-                            }
-                        }
-                    }
-                }
-            }else if(customers == 1){
-                    //Send random quantities from random distribution centers to remaining customer
-
-                while(dcs != 1){
-                    currentDC = availableDC[randDC.nextInt(availableDC.length)];
-                    randomQuantity = rand.nextInt(((distributionBalance[currentDC]) - 1) + 1) + 1;
-
-                    //send random quantity
-                    if(randomQuantity > network.customerBalance[availableCustomers[0]])
-                        randomQuantity = network.customerBalance[availableCustomers[0]];
-
-                    network.transportedProductS2[currentDC][availableCustomers[0]] += randomQuantity;
-                    network.distributionOutbound[currentDC] += randomQuantity;
-                    distributionBalance[currentDC]  -= randomQuantity;
-                    network.customerBalance[availableCustomers[0]] -= randomQuantity;
-                    Q-= randomQuantity;
-
-                    if(distributionBalance[currentDC] == 0){
-                        dcs--;
-                        availableDC = new int[dcs];
-                        int dc = 0;
-                        for (int j = 0; j < network.J; j++) {
-                            if(distributionBalance[j] > 0){
-                                availableDC[dc] = j;
-                                dc++;
-                            }
-                        }
-                    }
-                }
-            }else{
-                //Select DC and edge to a customer
-                currentDC = availableDC[randDC.nextInt(availableDC.length)];
-                currentCustomer = availableCustomers[randCustomer.nextInt(availableCustomers.length)];
-
-                randomQuantity = rand.nextInt(((network.distributionInbound[currentDC]) - 1) + 1) + 1;
-
-                //send random quantity
-                if(randomQuantity > distributionBalance[currentDC])
-                        randomQuantity = distributionBalance[currentDC];
-
-                if(randomQuantity > network.customerBalance[currentCustomer])
-                        randomQuantity = network.customerBalance[currentCustomer];
-
-
-                network.transportedProductS2[currentDC][currentCustomer] += randomQuantity;
-                network.distributionOutbound[currentDC] += randomQuantity;
-                distributionBalance[currentDC] -= randomQuantity;
-                network.customerBalance[currentCustomer] -= randomQuantity;
-                Q -= randomQuantity;
-
-
-
-                if(distributionBalance[currentDC] == 0){
-                        //current plant is no lobger available
-
-                    dcs--;
-                    availableDC = new int[dcs];
-                    int dc = 0;
-                    for (int j = 0; j < network.J ; j++) {
-                        if(distributionBalance[j] != 0){
-                                availableDC[dc] = j;
-                                dc++;
-                        }
-                    }
-                }
-                if(network.customerBalance[currentCustomer] == 0){
-
-                    customers--;
-                    availableCustomers = new int[customers];
-                    int c = 0;
-                    for (int k = 0; k < network.K ; k++) {
-                        if(network.customerBalance[k] > 0){
-                                availableCustomers[c] = k;
-                                c++;
-                        }
-                    }
-                }
-            }
+        	System.out.println(network.toString());
+        	
+            //TODO update available distribution centers
+        	availableDCS.del(currentDC);
+        	
+        	//TODO update distribution out-bound
+        	for(int out : network.transportedProductS2[currentDC]) {
+        		network.distributionOutbound[currentDC] += out;
+        	}    	
+            	
+        	//TODO update customer balance
+        	int customers = 0;
+        	for(int k = 0 ; k < network.K ; k++) {
+        		network.customerBalance[k] -= network.transportedProductS2[currentDC][k];
+        		if(network.customerBalance[k] != 0)
+        			customers ++;
+        	}
+        	
+        	availableCustomers = new int[customers];
+        	for(int k = 0 ; k < network.K ; k++) {
+        		network.customerBalance[k] -= network.transportedProductS2[currentDC][k];
+        		if(network.customerBalance[k] != 0)
+        			customers ++;
+        	}
+        	customers = 0;
+        	
+        	//TODO update available customers
+        	for(int k = 0 ; k < network.K ; k++) {
+        		if(network.customerBalance[k] != 0) {
+        			availableCustomers[customers] = k;
+        			customers++;
+        		}
+        	}
+        	
         }
+            
     }
+        
     /*
     *
     */    
