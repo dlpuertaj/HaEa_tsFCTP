@@ -136,9 +136,20 @@ class TestDistributor {
 			Distributor.firstStageInitialDistribution(networks[i]);
 			
 			Distributor.secondStageInitialDistribution(networks[i]);
+				
+			int j = 0;
+			for(int out : networks[i].distributionOutbound) {
+				assertTrue(networks[i].distributionInbound[j] - networks[i].distributionInbound[j] == 0);
+				totalDistributionOutbound += out;
+				j++;
+			}
 			
-			System.out.println(totalDistributionOutbound);
-			//TODO: finish
+			assertTrue(totalDistributionOutbound == networks[i].totalDemand);
+			
+			for(int balance : networks[i].customerBalance) {
+				assertTrue(balance == 0);
+			}
+			System.out.println("...ok");
 		}
 	}
 }

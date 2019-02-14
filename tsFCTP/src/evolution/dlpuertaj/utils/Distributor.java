@@ -150,7 +150,11 @@ public class Distributor {
     }
     
     /**
+    *Method used to allocate product from random distribution centers to
+    *random customers. this is done considering distribution center inbound and
+    *customer demands
     *
+    *@param network
     */
     public static void secondStageInitialDistribution(TwoStageFlowNetwork network){
 
@@ -172,46 +176,37 @@ public class Distributor {
         Random rand = new Random();
                 
         while(availableDCS.size() != 0){//until all the product has been sent. But it can be until all DC´s are balanced
-
+        	
         	//Select a distribution center and send all the in-bound product using random allocation
         	currentDC = availableDCS.get(rand.nextInt(availableDCS.size()));
         	
         	quantity = network.distributionInbound[currentDC];
             
         	network.transportedProductS2[currentDC] = randomAllocationWithCapacities(network.customerBalance, availableCustomers, quantity);
-            
-        	System.out.println(network.toString());
         	
-            //TODO update available distribution centers
+            //update available distribution centers
         	availableDCS.del(currentDC);
         	
-        	//TODO update distribution out-bound
-        	for(int out : network.transportedProductS2[currentDC]) {
-        		network.distributionOutbound[currentDC] += out;
-        	}    	
-            	
-        	//TODO update customer balance
+        	//update distribution out-bound and nproduction balance
         	int customers = 0;
-        	for(int k = 0 ; k < network.K ; k++) {
+        	for(int k = 0 ; k < network.transportedProductS2[currentDC].length ; k++) {
+        		network.distributionOutbound[currentDC] += network.transportedProductS2[currentDC][k];
         		network.customerBalance[k] -= network.transportedProductS2[currentDC][k];
         		if(network.customerBalance[k] != 0)
-        			customers ++;
-        	}
-        	
-        	availableCustomers = new int[customers];
-        	for(int k = 0 ; k < network.K ; k++) {
-        		network.customerBalance[k] -= network.transportedProductS2[currentDC][k];
-        		if(network.customerBalance[k] != 0)
-        			customers ++;
-        	}
-        	customers = 0;
-        	
-        	//TODO update available customers
-        	for(int k = 0 ; k < network.K ; k++) {
-        		if(network.customerBalance[k] != 0) {
-        			availableCustomers[customers] = k;
         			customers++;
-        		}
+        	}    	
+        	
+        	if(availableDCS.size() != 0) {
+	        	availableCustomers = new int[customers];
+	        	customers = 0;
+	        	
+	        	//TODO update available customers
+	        	for(int k = 0 ; k < network.K ; k++) {
+	        		if(network.customerBalance[k] != 0) {
+	        			availableCustomers[customers] = k;
+	        			customers++;
+	        		}
+	        	}
         	}
         	
         }
