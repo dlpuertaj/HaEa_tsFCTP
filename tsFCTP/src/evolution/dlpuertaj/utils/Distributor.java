@@ -151,7 +151,7 @@ public class Distributor {
     
     /**
     *Method used to allocate product from random distribution centers to
-    *random customers. this is done considering distribution center inbound and
+    *random customers. This is done considering distribution center inbound and
     *customer demands
     *
     *@param network
