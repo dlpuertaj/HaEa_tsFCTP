@@ -21,10 +21,10 @@ public class tsFCTP {
 	public int[] customerDemand;
 
 
-	public int[][] transportCostS1;
-	public int[][] fixedCostS1;
-	public int[][] transportCostS2;
-	public int[][] fixedCostS2;
+	public int[][] firstStageTransportCost;
+	public int[][] firstStageFixedCost;
+	public int[][] secondStageTransportCost;
+	public int[][] secondStageFixedCost;
 	
 	
 	public tsFCTP(String instance) {
@@ -41,11 +41,11 @@ public class tsFCTP {
 		this.distributionCapacity = new int[J];
 		this.customerDemand = new int[K];
 		
-		this.transportCostS1 = new int[I][J];
-		this.transportCostS2 = new int[J][K];
+		this.firstStageTransportCost = new int[I][J];
+		this.secondStageTransportCost = new int[J][K];
 		
-		this.fixedCostS1 = new int[I][J];
-		this.fixedCostS2 = new int[J][K];
+		this.firstStageFixedCost = new int[I][J];
+		this.secondStageFixedCost = new int[J][K];
 		
 		build(instance);
 	}
@@ -63,7 +63,7 @@ public class tsFCTP {
 		    //System.out.println("Reading first stage unit transport costs...");
 		    for (int i = 0; i < I; i++) {
 		    	for (int j = 0; j < J; j++) {
-                    this.transportCostS1[i][j] = Integer.valueOf(br.readLine());
+                    this.firstStageTransportCost[i][j] = Integer.valueOf(br.readLine());
                     //        System.out.println("(" + i + "-" + j +")= " + this.transportCostS1[i][j]);
                 }
 		    }
@@ -71,7 +71,7 @@ public class tsFCTP {
 		    //System.out.println("Reading first stage fixed costs...");
 		    for (int i = 0; i < I; i++) {
 		    	for (int j = 0; j < J; j++) {
-                    this.fixedCostS1[i][j] = Integer.valueOf(br.readLine());
+                    this.firstStageFixedCost[i][j] = Integer.valueOf(br.readLine());
                     //      System.out.println("(" + i + "-" + j +")= " + this.fixedCostS1[i][j]);
                 }
 		    }
@@ -79,7 +79,7 @@ public class tsFCTP {
 		    //System.out.println("Reading second stage unit transport costs...");
 		    for (int j = 0; j < J; j++) {
 		    	for (int k = 0; k < K; k++) {
-                    this.transportCostS2[j][k] = Integer.valueOf(br.readLine());
+                    this.secondStageTransportCost[j][k] = Integer.valueOf(br.readLine());
                     //      System.out.println("(" + j + "-" + k +")= " + this.transportCostS2[j][k]);
                 }
 		    }
@@ -87,7 +87,7 @@ public class tsFCTP {
 		    //System.out.println("Reading second stage fixed costs...");
 		    for (int j = 0; j < J; j++) {
 		    	for (int k = 0; k < K; k++) {
-                    this.fixedCostS2[j][k] = Integer.valueOf(br.readLine());
+                    this.secondStageFixedCost[j][k] = Integer.valueOf(br.readLine());
                     //      System.out.println("(" + j + "-" + k +")= " + this.fixedCostS2[j][k]);
                 }
 		    }
@@ -121,35 +121,35 @@ public class tsFCTP {
 	}
 
     public int[][] getTransportCostS1() {
-        return transportCostS1;
+        return firstStageTransportCost;
     }
 
     public void setTransportCostS1(int[][] transportCostS1) {
-        this.transportCostS1 = transportCostS1;
+        this.firstStageTransportCost = transportCostS1;
     }
 
     public int[][] getFixedCostS1() {
-        return fixedCostS1;
+        return firstStageFixedCost;
     }
 
     public void setFixedCostS1(int[][] fixedCostS1) {
-        this.fixedCostS1 = fixedCostS1;
+        this.firstStageFixedCost = fixedCostS1;
     }
 
     public int[][] getTransportCostS2() {
-        return transportCostS2;
+        return secondStageTransportCost;
     }
 
     public void setTransportCostS2(int[][] transportCostS2) {
-        this.transportCostS2 = transportCostS2;
+        this.secondStageTransportCost = transportCostS2;
     }
 
     public int[][] getFixedCostS2() {
-        return fixedCostS2;
+        return secondStageFixedCost;
     }
 
     public void setFixedCostS2(int[][] fixedCostS2) {
-        this.fixedCostS2 = fixedCostS2;
+        this.secondStageFixedCost = fixedCostS2;
     }
 
 	public void showProblemInstance(){
@@ -161,20 +161,20 @@ public class tsFCTP {
 		System.out.println("Total production capacity = "+totalProductionCapacity);
 		System.out.println("---");
 		System.out.println("First stage fixed costs");
-		for (int[] fixedCost : fixedCostS1) {
+		for (int[] fixedCost : firstStageFixedCost) {
 			System.out.println(Arrays.toString(fixedCost));
 		}
 		System.out.println("Second stage fixed costs");
-		for (int[] fixedCost : fixedCostS2) {
+		for (int[] fixedCost : secondStageFixedCost) {
 			System.out.println(Arrays.toString(fixedCost));
 		}
 		System.out.println("---");
 		System.out.println("First stage transportation costs");
-		for (int[] transportCost : transportCostS1) {
+		for (int[] transportCost : firstStageTransportCost) {
 			System.out.println(Arrays.toString(transportCost));
 		}
 		System.out.println("Second stage transportation costs");
-		for (int[] transportCost : transportCostS2) {
+		for (int[] transportCost : secondStageTransportCost) {
 			System.out.println(Arrays.toString(transportCost));
 		}
 		System.out.println("---");

@@ -12,10 +12,10 @@ public class TwoStageFlowNetwork {
 
     public int[] productionCapacity;
     public int[] productionBalance;
-    public int[] quantityProduced;
+    public int[] quantityProduced; //TODO: not necessary
     public int[] distributionInbound;
     public int[] distributionOutbound;
-    public int[] distributionCapacity;// unlimited capacity
+    public int[] distributionCapacity;// unlimited capacity = totalDemand
     public int[] customerDemand;
     public int[] customerBalance;
 
@@ -31,7 +31,7 @@ public class TwoStageFlowNetwork {
 		this.K = instance.K;
 		
 		this.customerDemand       = instance.customerDemand.clone();
-		this.customerBalance      = customerDemand.clone();//new int[K];
+		this.customerBalance      = customerDemand.clone();
 		this.productionCapacity   = instance.productionCapacity.clone();
 		this.productionBalance    = new int[I];
 		this.quantityProduced     = new int[I];

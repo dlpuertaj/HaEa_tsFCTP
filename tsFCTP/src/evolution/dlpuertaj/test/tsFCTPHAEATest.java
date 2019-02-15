@@ -56,10 +56,10 @@ public class tsFCTPHAEATest {
     	Space<TwoStageFlowNetwork> space = new TwoStageNetworkSpace(problem);
 
 		// Optimization Function
-		OptimizationFunction<TwoStageFlowNetwork> function = new TwoStageNetworkFlowFitness(problem.transportCostS1,
-				                                                              problem.fixedCostS1, 
-				                                                              problem.transportCostS2, 
-				                                                              problem.fixedCostS2);
+		OptimizationFunction<TwoStageFlowNetwork> function = new TwoStageNetworkFlowFitness(problem.firstStageTransportCost,
+				                                                              problem.firstStageFixedCost, 
+				                                                              problem.secondStageTransportCost, 
+				                                                              problem.secondStageFixedCost);
 		
 		
 		// Variation definition
