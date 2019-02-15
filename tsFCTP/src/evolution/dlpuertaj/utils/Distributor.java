@@ -160,11 +160,9 @@ public class Distributor {
 
     	Vector<Integer> availableDCS = new Vector<>();
     	int[] availableCustomers = new int[network.K];
-    	
-    	int quantity;
+       	int quantity;
     	int currentDC = 0;
-        
-                
+                      
         for (int j = 0; j < network.J; j++) {
             if(network.distributionInbound[j] > 0)
                 availableDCS.add(new Integer(j));
@@ -200,21 +198,24 @@ public class Distributor {
 	        	availableCustomers = new int[customers];
 	        	customers = 0;
 	        	
-	        	//TODO update available customers
+	            //update available customers
 	        	for(int k = 0 ; k < network.K ; k++) {
 	        		if(network.customerBalance[k] != 0) {
 	        			availableCustomers[customers] = k;
 	        			customers++;
 	        		}
 	        	}
-        	}
-        	
-        }
-            
+        	}      	
+        }           
     }
         
-    /*
-    *
+    /**
+    * Method that returns random amounts of product from a distribution center
+    * to random production centers (through positive edges) using the random allocation algorithm
+    * 
+    * @param dc
+    * @param quantity
+    * @param network
     */    
     public static  void returnProduct(int dc, int quantity,TwoStageFlowNetwork network) {
         Vector<Integer> edges = new Vector<>();
@@ -228,7 +229,7 @@ public class Distributor {
         int randomQuantity;
         int [] randomEdges = new int[edges.size()];
         Random rand = new Random();
-        while(quantity != 0){
+        while(quantity != 0){ // TODO: don´t us two for loops, select random edge on each iteration
         	
             //UniformIntegerGenerator edgeSelector = new UniformIntegerGenerator(edges.size());
             //randomEdges = edgeSelector.generate(edges.size());
