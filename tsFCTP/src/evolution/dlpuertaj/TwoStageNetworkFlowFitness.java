@@ -40,8 +40,8 @@ public class TwoStageNetworkFlowFitness extends OptimizationFunction<TwoStageFlo
         double f = 0;
         for (int i = 0; i < network.I; i++) {
             for (int j = 0; j < network.J; j++) {
-                if(network.transportedProductS1[i][j] > 0){
-                    f += (network.transportedProductS1[i][j] * transportCostS1[i][j])
+                if(network.firstStage[i][j] > 0){
+                    f += (network.firstStage[i][j] * transportCostS1[i][j])
                         + fixedCostS1[i][j];
                 }
             }
@@ -49,8 +49,8 @@ public class TwoStageNetworkFlowFitness extends OptimizationFunction<TwoStageFlo
         
         for (int j = 0; j < network.J; j++) {
             for (int k = 0; k < network.K; k++) {
-                if(network.transportedProductS2[j][k] > 0){
-                    f += (network.transportedProductS2[j][k] * transportCostS2[j][k])
+                if(network.secondStage[j][k] > 0){
+                    f += (network.secondStage[j][k] * transportCostS2[j][k])
                         + fixedCostS2[j][k];
                 }
             }

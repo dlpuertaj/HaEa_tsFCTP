@@ -19,8 +19,8 @@ public class TwoStageFlowNetwork {
     public int[] customerDemand;
     public int[] customerBalance;
 
-    public int[][] transportedProductS1;
-    public int[][] transportedProductS2;
+    public int[][] firstStage;
+    public int[][] secondStage;
 
 	
 	
@@ -39,8 +39,8 @@ public class TwoStageFlowNetwork {
 		this.distributionOutbound = new int[J];
 		this.distributionCapacity = new int[J];
 
-		this.transportedProductS1 = new int[I][J];
-		this.transportedProductS2 = new int[J][K];
+		this.firstStage = new int[I][J];
+		this.secondStage = new int[J][K];
 	
 		this.totalProductionCapacity = instance.totalProductionCapacity;
 		this.distributionCapacity = instance.distributionCapacity.clone();
@@ -64,14 +64,14 @@ public class TwoStageFlowNetwork {
         this.distributionOutbound = network.distributionOutbound.clone();
         this.distributionCapacity = network.distributionCapacity.clone();
         
-        transportedProductS1 = new int[I][J];
-        transportedProductS2 = new int[J][K];
+        firstStage = new int[I][J];
+        secondStage = new int[J][K];
         
-        for (int i = 0; i < transportedProductS1.length; i++) {
-            transportedProductS1[i] = network.transportedProductS1[i].clone();
+        for (int i = 0; i < firstStage.length; i++) {
+            firstStage[i] = network.firstStage[i].clone();
         }
-        for (int j = 0; j < transportedProductS2.length; j++) {
-            transportedProductS2[j] = network.transportedProductS2[j].clone();
+        for (int j = 0; j < secondStage.length; j++) {
+            secondStage[j] = network.secondStage[j].clone();
         }
     }
 		
@@ -90,11 +90,11 @@ public class TwoStageFlowNetwork {
         for (int i = 0; i < I; i++) {
             int produced = 0;
             for (int j = 0; j < J; j++) {
-                    firstStageFlow += transportedProductS1[i][j];
-                    produced += transportedProductS1[i][j];
-                    if(transportedProductS1[i][j] < 0)
+                    firstStageFlow += firstStage[i][j];
+                    produced += firstStage[i][j];
+                    if(firstStage[i][j] < 0)
                         positiveFlow = false;
-                    distributionIn[j] += transportedProductS1[i][j];
+                    distributionIn[j] += firstStage[i][j];
             }
             pBalance = produced == quantityProduced[i];
         }
@@ -102,10 +102,10 @@ public class TwoStageFlowNetwork {
         for (int i = 0; i < J; i++) {
 
             for (int j = 0; j < K; j++) {
-                secondStageFlow += transportedProductS2[i][j];
-                sent[j] += transportedProductS2[i][j];
-                distributionOut[i] += transportedProductS2[i][j];
-                if(transportedProductS2[i][j] < 0)
+                secondStageFlow += secondStage[i][j];
+                sent[j] += secondStage[i][j];
+                distributionOut[i] += secondStage[i][j];
+                if(secondStage[i][j] < 0)
                     positiveFlow = false;
             }
         }
@@ -146,13 +146,13 @@ public class TwoStageFlowNetwork {
         StringBuilder sb = new StringBuilder();
         sb.append("----Network----");sb.append(NEWLINE);
         for (int i = 0; i < I; i++) {
-            sb.append(Arrays.toString(transportedProductS1[i]));
+            sb.append(Arrays.toString(firstStage[i]));
             sb.append(NEWLINE);
         }
         sb.append("---");
         sb.append(NEWLINE);
         for (int j = 0; j < J; j++) {
-            sb.append(Arrays.toString(transportedProductS2[j]));
+            sb.append(Arrays.toString(secondStage[j]));
             sb.append(NEWLINE);
         }
         sb.append("Production balance").append(Arrays.toString(productionBalance));

@@ -43,9 +43,9 @@ public class XOverNetworkCustomers implements Variation_2_2<TwoStageFlowNetwork>
 
             int[][] tempSecondStage = new int[parent1.J][parent1.K];
             for (int i = 0; i < tempSecondStage.length; i++) {
-                tempSecondStage[i] = child1.transportedProductS2[i].clone();
+                tempSecondStage[i] = child1.secondStage[i].clone();
             }
-            Distributor.importSecondStagePlan(child2.transportedProductS2, child1);
+            Distributor.importSecondStagePlan(child2.secondStage, child1);
             Distributor.importSecondStagePlan(tempSecondStage, child2);
 
             for (int dc = 0 ; dc < child1.J ; dc++) {              

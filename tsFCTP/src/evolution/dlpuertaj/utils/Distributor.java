@@ -122,13 +122,13 @@ public class Distributor {
             currentPlant = availablePlants.get(index);
             quantity = network.productionBalance[currentPlant];
             
-            network.transportedProductS1[currentPlant] = randomAllocationWithCapacities(network.distributionCapacity,availableDCs, quantity);
+            network.firstStage[currentPlant] = randomAllocationWithCapacities(network.distributionCapacity,availableDCs, quantity);
             
             network.productionBalance[currentPlant] = 0;
             
             //calculate ditribution inbound
             for(int j = 0 ; j < network.J ; j++) {
-            	network.distributionInbound[j] += network.transportedProductS1[currentPlant][j]; 
+            	network.distributionInbound[j] += network.firstStage[currentPlant][j]; 
             }
             
             availablePlants.del(currentPlant);       
@@ -137,12 +137,12 @@ public class Distributor {
         if(availablePlants.size() == 1){
 
             quantity = network.productionBalance[availablePlants.get(0)];
-            network.transportedProductS1[availablePlants.get(0)] = randomAllocationWithCapacities(network.distributionCapacity,availableDCs, quantity);
+            network.firstStage[availablePlants.get(0)] = randomAllocationWithCapacities(network.distributionCapacity,availableDCs, quantity);
 
         	network.productionBalance[availablePlants.get(0)] = 0;
             
             for(int j = 0 ; j < network.J ; j++) {
-            	network.distributionInbound[j] += network.transportedProductS1[availablePlants.get(0)][j]; 
+            	network.distributionInbound[j] += network.firstStage[availablePlants.get(0)][j]; 
             }
             
             availablePlants.del(availablePlants.get(0));
@@ -180,16 +180,16 @@ public class Distributor {
         	
         	quantity = network.distributionInbound[currentDC];
             
-        	network.transportedProductS2[currentDC] = randomAllocationWithCapacities(network.customerBalance, availableCustomers, quantity);
+        	network.secondStage[currentDC] = randomAllocationWithCapacities(network.customerBalance, availableCustomers, quantity);
         	
             //update available distribution centers
         	availableDCS.del(currentDC);
         	
         	//update distribution out-bound and nproduction balance
         	int customers = 0;
-        	for(int k = 0 ; k < network.transportedProductS2[currentDC].length ; k++) {
-        		network.distributionOutbound[currentDC] += network.transportedProductS2[currentDC][k];
-        		network.customerBalance[k] -= network.transportedProductS2[currentDC][k];
+        	for(int k = 0 ; k < network.secondStage[currentDC].length ; k++) {
+        		network.distributionOutbound[currentDC] += network.secondStage[currentDC][k];
+        		network.customerBalance[k] -= network.secondStage[currentDC][k];
         		if(network.customerBalance[k] != 0)
         			customers++;
         	}    	
@@ -211,52 +211,41 @@ public class Distributor {
         
     /**
     * Method that returns random amounts of product from a distribution center
-    * to random production centers (through positive edges) using the random allocation algorithm
+    * to production centers (through random positive edges) using the random allocation algorithm
     * 
     * @param dc
     * @param quantity
     * @param network
     */    
     public static  void returnProduct(int dc, int quantity,TwoStageFlowNetwork network) {
-        Vector<Integer> edges = new Vector<>();
+        
+    	int pc = 0;
+    	int[] productionCenters; 
+        int[] capacities;
+        for (int i = 0 ; i < network.I ; i++) {
+            if(network.firstStage[i][dc] > 0)//Only edges with positive flow
+                pc++;
+        }
+        
+        productionCenters = new int[pc];
+        capacities = new int[pc];
+        pc = 0;
         
         for (int i = 0 ; i < network.I ; i++) {
-            if(network.transportedProductS1[i][dc] > 0)//Only edges with positive flow
-                edges.add(i);
-        }	
-        
-        int Q = quantity;
-        int randomQuantity;
-        int [] randomEdges = new int[edges.size()];
-        Random rand = new Random();
-        while(quantity != 0){ // TODO: don´t us two for loops, select random edge on each iteration
-        	
-            //UniformIntegerGenerator edgeSelector = new UniformIntegerGenerator(edges.size());
-            //randomEdges = edgeSelector.generate(edges.size());
-            for (int i = 0; i < edges.size(); i++) {
-                randomEdges[i] = rand.nextInt(edges.size());
-            }
-            
-            for (int e : randomEdges) {
-                randomQuantity = rand.nextInt((Q - 1) + 1) + 1;
-                randomQuantity = randomQuantity > quantity ? quantity : randomQuantity;
-                randomQuantity = network.transportedProductS1[edges.get(e)][dc] < randomQuantity ? 
-                                 network.transportedProductS1[edges.get(e)][dc] : randomQuantity; 
-
-
-                network.distributionInbound[dc] -= randomQuantity;
-                network.transportedProductS1[edges.get(e)][dc] -= randomQuantity;
-                network.productionBalance[edges.get(e)] += randomQuantity;
-                quantity -= randomQuantity;
-
-                if(network.transportedProductS1[edges.get(e)][dc] == 0){
-                    edges.del(edges.get(e));
-                    randomEdges = new int[edges.size()];
-                    break;
-                }
+            if(network.firstStage[i][dc] > 0) {//Only edges with positive flow
+                productionCenters[pc] = i;
+                capacities[pc] = network.firstStage[i][dc];
+            	pc++;
             }
         }
-		
+        
+        int[] allocated = randomAllocationWithCapacities(capacities, productionCenters, quantity);
+        
+        //TODO: update transportedProductS1 and production centers
+        
+        for(int i = 0 ; i < allocated.length ; i++) {
+        	
+        }
     }
     
     /**
@@ -302,7 +291,7 @@ public class Distributor {
                 randomQuantity = randomQuantity > balanceQuantities.get(e) ? balanceQuantities.get(e) : randomQuantity; 
 
                 network.distributionInbound[edges.get(e)] += randomQuantity;
-                network.transportedProductS1[productionCenter][edges.get(e)] += randomQuantity;
+                network.firstStage[productionCenter][edges.get(e)] += randomQuantity;
                 network.productionBalance[productionCenter] -= randomQuantity;
 
                 //If the edge is balanced, it is then deleted from the edge vector
@@ -347,7 +336,7 @@ public class Distributor {
 
             if(edges.size() == 1){
                 network.productionBalance[plant] -= quantity;
-                network.transportedProductS1[plant][edges.get(0)] += quantity;
+                network.firstStage[plant][edges.get(0)] += quantity;
                 network.distributionInbound[edges.get(0)] += quantity;
                 quantity = 0;
             }else{
@@ -359,7 +348,7 @@ public class Distributor {
                     randomQuantity = randomQuantity > quantity ? quantity : randomQuantity;
 
                     network.productionBalance[plant] -= randomQuantity;
-                    network.transportedProductS1[plant][edges.get(e)] += randomQuantity;
+                    network.firstStage[plant][edges.get(e)] += randomQuantity;
                     network.distributionInbound[edges.get(e)] += randomQuantity;
 
                     quantity -= randomQuantity;
@@ -401,7 +390,7 @@ public class Distributor {
                 randomQuantity = randomQuantity > balanceQuantities.get(e) ? balanceQuantities.get(e) : randomQuantity; 
 
                 network.distributionOutbound[dc] += randomQuantity;
-                network.transportedProductS2[dc][edges.get(e)] += randomQuantity;
+                network.secondStage[dc][edges.get(e)] += randomQuantity;
                 network.customerBalance[edges.get(e)] -= randomQuantity;
 
                 balanceQuantities.set(e, balanceQuantities.get(e)-randomQuantity);
@@ -430,7 +419,7 @@ public class Distributor {
                 network.quantityProduced[i] += plan[i][j];
                 dcIn[j] += plan[i][j];
             }
-            network.transportedProductS1[i] = plan[i].clone();
+            network.firstStage[i] = plan[i].clone();
         }
         network.distributionInbound = dcIn.clone();
     }
@@ -446,7 +435,7 @@ public class Distributor {
                 network.distributionOutbound[j] += plan[j][k];
                 dcOut[j] += plan[j][k];
             }
-            network.transportedProductS2[j] = plan[j].clone();
+            network.secondStage[j] = plan[j].clone();
         }
         network.distributionOutbound = dcOut.clone();
     }
@@ -459,12 +448,12 @@ public class Distributor {
         network.distributionInbound[DC] = 0;
         network.distributionOutbound[DC] = 0;
         for (int k = 0; k < network.K; k++) {
-            network.customerBalance[k] += network.transportedProductS2[DC][k];
-            network.transportedProductS2[DC][k] = 0;
+            network.customerBalance[k] += network.secondStage[DC][k];
+            network.secondStage[DC][k] = 0;
         }
         for (int i = 0; i < network.I; i++) {
-            network.productionBalance[i] += network.transportedProductS1[i][DC];
-            network.transportedProductS1[i][DC] = 0;
+            network.productionBalance[i] += network.firstStage[i][DC];
+            network.firstStage[i][DC] = 0;
         }
     }
     
@@ -474,9 +463,9 @@ public class Distributor {
     public static void randomPlantTransportation(int plant, int quantity, TwoStageFlowNetwork network) {
         int[] edges = new int[network.J];
         for (int j = 0 ; j < network.J ; j++) {
-            network.distributionInbound[j] -= network.transportedProductS1[plant][j];
-            network.productionBalance[plant] += network.transportedProductS1[plant][j];
-            network.transportedProductS1[plant][j] = 0;
+            network.distributionInbound[j] -= network.firstStage[plant][j];
+            network.productionBalance[plant] += network.firstStage[plant][j];
+            network.firstStage[plant][j] = 0;
             edges[j] = j;
         }
         
@@ -493,7 +482,7 @@ public class Distributor {
             }
             if(edges.length == 1){
                 network.productionBalance[plant] -= quantity;
-                network.transportedProductS1[plant][edges[0]] += quantity;
+                network.firstStage[plant][edges[0]] += quantity;
                 network.distributionInbound[edges[0]] += quantity;
                 quantity = 0;
             }else{
@@ -502,7 +491,7 @@ public class Distributor {
                     randomQuantity = randomQuantity > quantity ? quantity : randomQuantity;
 
                     network.productionBalance[plant] -= randomQuantity;
-                    network.transportedProductS1[plant][edges[e]] += randomQuantity;
+                    network.firstStage[plant][edges[e]] += randomQuantity;
                     network.distributionInbound[edges[e]] += randomQuantity;
 
                     quantity -= randomQuantity;
@@ -557,7 +546,7 @@ public class Distributor {
                 randomQuantity = randomQuantity > balanceQuantities[re] ? balanceQuantities[re] : randomQuantity; 
 
                 network.distributionOutbound[dc] += randomQuantity;
-                network.transportedProductS2[dc][edges[re]] += randomQuantity;
+                network.secondStage[dc][edges[re]] += randomQuantity;
                 network.customerBalance[edges[re]] -= randomQuantity;
 
                 balanceQuantities[re] -= randomQuantity;
@@ -644,10 +633,10 @@ public class Distributor {
             
             
             if(leastCostMatrix.length == n.I && leastCostMatrix[0].length == n.J){
-            	n.transportedProductS1[s][d] +=  quantity;
+            	n.firstStage[s][d] +=  quantity;
             	n.distributionInbound[d] += quantity;
             }else{
-            	n.transportedProductS2[s][d] +=  quantity;
+            	n.secondStage[s][d] +=  quantity;
             	n.distributionOutbound[s] += quantity;
             	n.customerBalance[d] -= quantity;
             }
@@ -823,10 +812,10 @@ public class Distributor {
             }
 
             if(costMatrix.length == network.I && costMatrix[0].length == network.J){
-            	network.transportedProductS1[row][col] +=  quantity;
+            	network.firstStage[row][col] +=  quantity;
             	network.distributionInbound[col] += quantity;
             }else{
-            	network.transportedProductS2[row][col] +=  quantity;
+            	network.secondStage[row][col] +=  quantity;
             	network.distributionOutbound[row] += quantity;
             	network.customerBalance[col] -= quantity;
             }
@@ -845,13 +834,13 @@ public class Distributor {
         int edge = 0;
         for (int i = 0; i < network.I; i++) {
             for (int j = 0; j < network.J; j++) {
-                array[edge] = network.transportedProductS1[i][j];
+                array[edge] = network.firstStage[i][j];
                 edge++;
             }
         }
         for (int i = 0; i < network.J; i++) {
             for (int j = 0; j < network.K; j++) {
-                array[edge] = network.transportedProductS2[i][j];
+                array[edge] = network.secondStage[i][j];
                 edge++;
             }
         }
@@ -869,7 +858,7 @@ public class Distributor {
         while(edge != flowArray.length){
 
             if(stage == true){
-                network.transportedProductS1[i][j] = flowArray[edge];
+                network.firstStage[i][j] = flowArray[edge];
                 network.quantityProduced[i] += flowArray[edge];
                 network.distributionInbound[j] += flowArray[edge];
 
@@ -884,7 +873,7 @@ public class Distributor {
                 }
 
             }else{
-                network.transportedProductS2[j][k] = flowArray[edge];
+                network.secondStage[j][k] = flowArray[edge];
                 network.distributionOutbound[j] += flowArray[edge];
                 network.customerBalance[k] -= flowArray[edge];
                 if(k >= network.K-1){

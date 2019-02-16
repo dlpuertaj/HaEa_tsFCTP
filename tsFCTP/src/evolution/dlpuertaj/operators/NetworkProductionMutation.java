@@ -56,9 +56,9 @@ public class NetworkProductionMutation implements Variation_1_1<TwoStageFlowNetw
                 for (int j = 0 ; j < child.J ; j++) {
                     for (int k = 0 ; k < child.K ; k++) {
                         if(child.distributionInbound[j] != child.distributionOutbound[j]){
-                           child.customerBalance[k] += child.transportedProductS2[j][k];
-                           child.distributionOutbound[j] -= child.transportedProductS2[j][k];
-                           child.transportedProductS2[j][k] = 0; 
+                           child.customerBalance[k] += child.secondStage[j][k];
+                           child.distributionOutbound[j] -= child.secondStage[j][k];
+                           child.secondStage[j][k] = 0; 
                         }
                     }                   
                 }
