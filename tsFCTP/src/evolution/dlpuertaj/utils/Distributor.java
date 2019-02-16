@@ -244,7 +244,8 @@ public class Distributor {
         //TODO: update transportedProductS1 and production centers
         
         for(int i = 0 ; i < allocated.length ; i++) {
-        	
+        	network.firstStage[i][dc] -= allocated[productionCenters[i]];
+        	network.productionBalance[productionCenters[i]] += allocated[productionCenters[i]];
         }
     }
     
