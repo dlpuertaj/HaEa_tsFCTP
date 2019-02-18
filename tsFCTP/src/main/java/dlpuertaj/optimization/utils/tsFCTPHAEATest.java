@@ -1,16 +1,15 @@
-/*
+package dlpuertaj.optimization.utils;/*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package evolution.dlpuertaj.test;
 
-import evolution.dlpuertaj.TwoStageFlowNetwork;
-import evolution.dlpuertaj.TwoStageNetworkFlowFitness;
-import evolution.dlpuertaj.TwoStageNetworkSpace;
-import evolution.dlpuertaj.tsFCTP;
-import evolution.dlpuertaj.operators.DistributionDisablerMutation;
-import evolution.dlpuertaj.operators.NetworkProductionMutation;
-import evolution.dlpuertaj.operators.XOverNetworkCustomers;
+import dlpuertaj.TwoStageNetworkFlowFitness;
+import dlpuertaj.TwoStageNetworkSpace;
+import dlpuertaj.optimization.domain.TwoStageFlowNetwork;
+import dlpuertaj.optimization.domain.tsFCTP;
+import dlpuertaj.optimization.operators.DistributionDisablerMutation;
+import dlpuertaj.optimization.operators.NetworkProductionMutation;
+import dlpuertaj.optimization.operators.XOverNetworkCustomers;
 import unalcol.descriptors.WriteDescriptors;
 import unalcol.evolution.EAFactory;
 import unalcol.evolution.haea.HaeaOperators;

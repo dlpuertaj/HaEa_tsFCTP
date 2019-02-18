@@ -1,4 +1,4 @@
-package evolution.dlpuertaj.domain;
+package dlpuertaj.optimization.utils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

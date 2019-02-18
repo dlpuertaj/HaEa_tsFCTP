@@ -1,13 +1,14 @@
-/*
+package dlpuertaj;/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package evolution.dlpuertaj;
 
 import java.util.Random;
 
-import evolution.dlpuertaj.domain.Distributor;
+import dlpuertaj.optimization.domain.TwoStageFlowNetwork;
+import dlpuertaj.optimization.domain.tsFCTP;
+import dlpuertaj.optimization.utils.Distributor;
 import unalcol.search.space.Space;
 
 public class TwoStageNetworkSpace implements Space<TwoStageFlowNetwork>{

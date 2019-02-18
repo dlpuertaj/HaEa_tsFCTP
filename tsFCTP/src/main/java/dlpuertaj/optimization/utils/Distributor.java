@@ -1,10 +1,10 @@
- package evolution.dlpuertaj.domain;
+ package dlpuertaj.optimization.utils;
+
+import dlpuertaj.optimization.domain.TwoStageFlowNetwork;
+import unalcol.types.collection.vector.Vector;
 
 import java.util.Arrays;
 import java.util.Random;
-
-import evolution.dlpuertaj.TwoStageFlowNetwork;
-import unalcol.types.collection.vector.Vector;
 
 
 public class Distributor {
@@ -173,7 +173,7 @@ public class Distributor {
         
         Random rand = new Random();
                 
-        while(availableDCS.size() != 0){//until all the product has been sent. But it can be until all DC´s are balanced
+        while(availableDCS.size() != 0){//until all the product has been sent. But it can be until all DCï¿½s are balanced
         	
         	//Select a distribution center and send all the in-bound product using random allocation
         	currentDC = availableDCS.get(rand.nextInt(availableDCS.size()));

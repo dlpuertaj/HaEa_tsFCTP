@@ -1,6 +1,7 @@
-import evolution.dlpuertaj.TwoStageFlowNetwork;
-import evolution.dlpuertaj.domain.Distributor;
-import evolution.dlpuertaj.tsFCTP;
+
+import dlpuertaj.optimization.domain.TwoStageFlowNetwork;
+import dlpuertaj.optimization.domain.tsFCTP;
+import dlpuertaj.optimization.utils.Distributor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -25,22 +26,58 @@ public class TestTwoStageFlowNetwork {
         for(String instance : INSTANCES) {
             problems[i] = new tsFCTP(instance);
             networks[i] = new TwoStageFlowNetwork(problems[i]);
+            Distributor.startProduction(networks[i]);
+            Distributor.firstStageInitialDistribution(networks[i]);
+            Distributor.secondStageInitialDistribution(networks[i]);
             i++;
         }
     }
 
     @Test
-    public void testFlowNetwork(){
-        System.out.println("\nTesting network balance process...");
+    public void testProductionBalance(){
+        System.out.println("\nTesting network production balance...");
         for(int i = 0 ; i < networks.length ; i++){
             System.out.print("Testig with instance: " + INSTANCES[i]);
             assertNotNull(networks[i]);
 
-            Distributor.startProduction(networks[i]);
-            Distributor.firstStageInitialDistribution(networks[i]);
-            Distributor.secondStageInitialDistribution(networks[i]);
+            assertTrue(networks[i].productionBalance());
+            System.out.println(" ok...");
+        }
+    }
+
+    @Test
+    public void testDistributionBalance(){
+        System.out.println("\nTesting network production balance...");
+        for(int i = 0 ; i < networks.length ; i++){
+            System.out.print("Testig with instance: " + INSTANCES[i]);
+            assertNotNull(networks[i]);
+
+            assertTrue(networks[i].distributionBalance());
+            System.out.println(" ok...");
+        }
+    }
+
+    @Test
+    public void testCustomerBalance(){
+        System.out.println("\nTesting network production balance...");
+        for(int i = 0 ; i < networks.length ; i++){
+            System.out.print("Testig with instance: " + INSTANCES[i]);
+            assertNotNull(networks[i]);
+
+            assertTrue(networks[i].customerBalance());
+            System.out.println(" ok...");
+        }
+    }
+
+    @Test
+    public void testNetworkBalance(){
+        System.out.println("\nTesting network production balance...");
+        for(int i = 0 ; i < networks.length ; i++){
+            System.out.print("Testig with instance: " + INSTANCES[i]);
+            assertNotNull(networks[i]);
 
             assertTrue(networks[i].testNetwork());
+            System.out.println(" ok...");
         }
     }
 }

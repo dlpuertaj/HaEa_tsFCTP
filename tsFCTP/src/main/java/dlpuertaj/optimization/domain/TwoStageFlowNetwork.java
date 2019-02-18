@@ -1,4 +1,4 @@
-package evolution.dlpuertaj;
+package dlpuertaj.optimization.domain;
 
 import java.util.Arrays;
 
@@ -22,8 +22,7 @@ public class TwoStageFlowNetwork {
     public int[][] firstStage;
     public int[][] secondStage;
 
-	
-	
+
     public TwoStageFlowNetwork(tsFCTP instance){
         
 		this.I = instance.I;
@@ -44,7 +43,7 @@ public class TwoStageFlowNetwork {
 
 		this.totalProductionCapacity = instance.totalProductionCapacity;
 		this.distributionCapacity = instance.distributionCapacity.clone();
-		this.totalDemand += instance.totalDemand;
+		this.totalDemand = instance.totalDemand;
 	}
 
     public TwoStageFlowNetwork(TwoStageFlowNetwork network){
@@ -75,97 +74,73 @@ public class TwoStageFlowNetwork {
         }
     }
 
-    public boolean testProduction(){
+    /**
+     * Method that test the production of the network. It test the production balance and
+     * the production capacity
+     **/
+    public boolean productionBalance(){
         int produced;
         int totalProduction = 0;
-        boolean productionTest = false;
         for (int i = 0; i < I; i++) {
             produced = 0;
             for(int j = 0 ; j < J ; j++){
                 produced += firstStage[i][j];
             }
-            totalProduction += produced;
             if(produced > productionCapacity[i])
                 return false;
+            else
+                totalProduction += produced;
         }
-        return totalProduction <= totalDemand;
+        return (totalProduction == totalDemand) && (totalProduction <= totalProductionCapacity);
     }
-    public boolean testNetwork(){
 
+    /**
+     * Method that test the distribution centers. It tests the distribution inbound and outbound
+     * */
+    public boolean distributionBalance(){
 
-        int firstStageFlow          = 0;
-        int secondStageFlow         = 0;
-        int[] distributionIn        = new int[J];
-        int[] distributionOut       = new int[J];
-        boolean pBalance            = false;
-        boolean cBalance            = false;    
-        boolean distributionBalance = false;
-        boolean positiveFlow        = true;
-        boolean flowConservation    = false;
+        int inbound;
+        int outbound;
+        int totalDistribution = 0;
+        for(int j = 0 ; j < J ; j++){
+            inbound = 0;
+            for(int i = 0 ; i < I ; i++){
+                inbound += firstStage[i][j];
+            }
+            outbound = 0;
+            for(int k = 0 ; k < K ; k++){
+                outbound += secondStage[j][k];
+            }
+            if(inbound != outbound)
+                return false;
+            else
+                totalDistribution += outbound;
+        }
+        return totalDistribution == totalDemand;
+    }
 
-        for (int i = 0; i < I; i++) {
-            produced = 0;
+    /**
+     * Method that test the balance of customers*/
+    public boolean customerBalance(){
+        int received;
+        int totalReceived = 0;
+        for(int k = 0 ; k < K ; k++){
+            received = 0;
             for(int j = 0 ; j < J ; j++){
-                firstStageFlow += firstStage[i][j];
-                for(int k = 0 ; k < K ; k++){
-
-                }
+                received += secondStage[j][k];
             }
+            if(received != customerDemand[k])
+                return false;
+            else
+                totalReceived += received;
         }
-
-        for (int i = 0; i < I; i++) {
-
-            for (int j = 0; j < J; j++) {
-                    firstStageFlow += firstStage[i][j];
-                    produced += firstStage[i][j];
-                    if(firstStage[i][j] < 0)
-                        positiveFlow = false;
-                    distributionIn[j] += firstStage[i][j];
-            }
-            pBalance = produced == quantityProduced[i];
-        }
-        int[] sent = new int[K];
-        for (int i = 0; i < J; i++) {
-
-            for (int j = 0; j < K; j++) {
-                secondStageFlow += secondStage[i][j];
-                sent[j] += secondStage[i][j];
-                distributionOut[i] += secondStage[i][j];
-                if(secondStage[i][j] < 0)
-                    positiveFlow = false;
-            }
-        }
-
-        for (int i = 0; i < this.K; i++) {
-            cBalance = sent[i] == customerDemand[i];
-        }
-        for (int i = 0; i < this.J; i++) {
-            distributionBalance = distributionInbound[i] == distributionOutbound[i];
-        }
-        boolean distributionInBalance = false;
-        boolean distributionOutBalance = false;
-
-        for (int i = 0; i < this.J; i++) {
-            distributionInBalance = distributionInbound[i] == distributionIn[i];
-        }
-
-        for (int i = 0; i < this.J; i++) {
-            distributionOutBalance = distributionOutbound[i] == distributionOut[i];
-        }
-
-        if(firstStageFlow == secondStageFlow && firstStageFlow == totalDemand && secondStageFlow == totalDemand ){
-            flowConservation = true;
-        }
-
-        return distributionOutBalance &&
-               distributionInBalance  && 
-               distributionBalance    && 
-               flowConservation       && 
-               positiveFlow           &&
-               pBalance               && 
-               cBalance;
+        return totalReceived == totalDemand;
     }
-    
+
+    public boolean testNetwork(){
+        return productionBalance() && distributionBalance() && customerBalance();
+    }
+
     @Override
     public String toString(){
         String NEWLINE = System.getProperty("line.separator");
@@ -198,5 +173,4 @@ public class TwoStageFlowNetwork {
         sb.append("------------");sb.append(NEWLINE);
         return sb.toString();
     }
-
 }

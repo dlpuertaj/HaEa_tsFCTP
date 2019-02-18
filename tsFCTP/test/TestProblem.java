@@ -1,15 +1,18 @@
 import static org.junit.jupiter.api.Assertions.*;
 
+import dlpuertaj.optimization.domain.TwoStageFlowNetwork;
+import dlpuertaj.optimization.domain.tsFCTP;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import evolution.dlpuertaj.TwoStageFlowNetwork;
-import evolution.dlpuertaj.tsFCTP;
 
 class TestProblem {
-	public final String INSTANCE = "223";
-	public tsFCTP problem = null;  
-	public TwoStageFlowNetwork network = null;
+	private final String INSTANCE = "223";
+	private tsFCTP problem;
+
+	public tsFCTP getProblem() {
+		return problem;
+	}
 	
 	@BeforeEach
 	void ini() {
