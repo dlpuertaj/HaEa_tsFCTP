@@ -6,7 +6,7 @@
 package evolution.dlpuertaj.operators;
 
 import evolution.dlpuertaj.TwoStageFlowNetwork;
-import evolution.dlpuertaj.utils.Distributor;
+import evolution.dlpuertaj.domain.Distributor;
 import unalcol.search.variation.Variation_2_2;
 
 
@@ -15,18 +15,11 @@ import unalcol.search.variation.Variation_2_2;
  * @author Davosoft
  */
 public class XOverNetworkCustomers implements Variation_2_2<TwoStageFlowNetwork> {
-    
-  /**
-   * The crossover point of the last xover execution
-   */
-  protected double cross_over_vertex_type;
 
-  
   public XOverNetworkCustomers(){
  	
   }
-  
-  
+
   /**
    * Apply the simple point crossover operation over the given genomes at the given
    * cross point

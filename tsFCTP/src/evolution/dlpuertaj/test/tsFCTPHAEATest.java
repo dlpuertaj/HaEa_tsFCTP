@@ -11,7 +11,6 @@ import evolution.dlpuertaj.tsFCTP;
 import evolution.dlpuertaj.operators.DistributionDisablerMutation;
 import evolution.dlpuertaj.operators.NetworkProductionMutation;
 import evolution.dlpuertaj.operators.XOverNetworkCustomers;
-import evolution.dlpuertaj.utils.MethodTest;
 import unalcol.descriptors.WriteDescriptors;
 import unalcol.evolution.EAFactory;
 import unalcol.evolution.haea.HaeaOperators;
@@ -21,6 +20,7 @@ import unalcol.evolution.haea.SimpleHaeaOperatorsDescriptor;
 import unalcol.evolution.haea.WriteHaeaStep;
 import unalcol.optimization.OptimizationFunction;
 import unalcol.search.Search;
+import unalcol.search.population.PopulationDescriptors;
 import unalcol.search.population.PopulationSearch;
 import unalcol.search.selection.Tournament;
 import unalcol.search.solution.SolutionDescriptors;
@@ -100,7 +100,11 @@ public class tsFCTPHAEATest {
         Service.register( new WriteHaeaStep(), HaeaStep.class);
         Service.register( new SimpleHaeaOperatorsDescriptor(), HaeaOperators.class);
         Service.register( new WriteDescriptors(), HaeaOperators.class);
-		MethodTest.population_service(function);
+		@SuppressWarnings("rawtypes")
+		PopulationDescriptors pd= new PopulationDescriptors();
+		//pd.setGoal(function);
+		Service.register(pd, Tagged[].class);
+		Service.register(new WriteDescriptors(), Tagged[].class);
 	}
 	
 	public static void service(OptimizationFunction<?> function, Search<?, Double> search){

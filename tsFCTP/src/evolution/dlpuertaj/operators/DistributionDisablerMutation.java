@@ -6,7 +6,7 @@
 package evolution.dlpuertaj.operators;
 
 import evolution.dlpuertaj.TwoStageFlowNetwork;
-import evolution.dlpuertaj.utils.Distributor;
+import evolution.dlpuertaj.domain.Distributor;
 import unalcol.random.util.RandBool;
 import unalcol.search.variation.ParameterizedObject;
 import unalcol.search.variation.Variation_1_1;

@@ -1,4 +1,4 @@
-package evolution.dlpuertaj.utils;
+package evolution.dlpuertaj.test;
 
 import unalcol.descriptors.WriteDescriptors;
 import unalcol.optimization.OptimizationFunction;
@@ -21,7 +21,7 @@ import unalcol.search.population.PopulationDescriptors;
 import unalcol.search.solution.SolutionDescriptors;
 import unalcol.search.solution.SolutionWrite;
 import unalcol.search.space.Space;
-import unalcol.services.Service;
+import unalcol.services.*;
 import unalcol.tracer.ConsoleTracer;
 import unalcol.tracer.Tracer;
 import unalcol.tracer.VectorTracer;
@@ -138,12 +138,12 @@ public class MethodTest {
         Service.register(new IntArrayPlainWrite(',',false), int[].class);
         Service.register(new WriteDescriptors(), Tagged.class);
 	}
-	
+
 	public static void population_service(OptimizationFunction<?> function ){
 		@SuppressWarnings("rawtypes")
 		PopulationDescriptors pd= new PopulationDescriptors();
 		//pd.setGoal(function);
 		Service.register(pd, Tagged[].class);
 		Service.register(new WriteDescriptors(), Tagged[].class);
-	}	
+	}
 }

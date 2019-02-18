@@ -1,7 +1,6 @@
 package evolution.dlpuertaj.test;
 
 
-import evolution.dlpuertaj.utils.MethodTest;
 import unalcol.descriptors.WriteDescriptors;
 import unalcol.evolution.EAFactory;
 import unalcol.evolution.haea.HaeaOperators;
@@ -20,6 +19,7 @@ import unalcol.optimization.real.xover.LinearXOver;
 import unalcol.optimization.real.xover.RealArityTwo;
 import unalcol.search.multilevel.CodeDecodeMap;
 import unalcol.search.multilevel.MultiLevelSearch;
+import unalcol.search.population.PopulationDescriptors;
 import unalcol.search.population.PopulationSearch;
 import unalcol.search.selection.Tournament;
 import unalcol.search.space.Space;
@@ -29,6 +29,7 @@ import unalcol.services.Service;
 import unalcol.tracer.Tracer;
 import unalcol.types.collection.bitarray.BitArray;
 import unalcol.types.collection.vector.Vector;
+import unalcol.types.object.tagged.Tagged;
 
 public class HAEATest {
 	
@@ -37,7 +38,11 @@ public class HAEATest {
         Service.register( new WriteHaeaStep(), HaeaStep.class);
         Service.register( new SimpleHaeaOperatorsDescriptor(), HaeaOperators.class);
         Service.register( new WriteDescriptors(), HaeaOperators.class);
-		MethodTest.population_service(function);
+		@SuppressWarnings("rawtypes")
+		PopulationDescriptors pd= new PopulationDescriptors();
+		//pd.setGoal(function);
+		Service.register(pd, Tagged[].class);
+		Service.register(new WriteDescriptors(), Tagged[].class);
 	}
 	
 	public static void print_function(OptimizationFunction<?> function){

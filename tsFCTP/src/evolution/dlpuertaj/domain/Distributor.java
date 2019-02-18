@@ -1,4 +1,4 @@
- package evolution.dlpuertaj.utils;
+ package evolution.dlpuertaj.domain;
 
 import java.util.Arrays;
 import java.util.Random;
@@ -73,8 +73,8 @@ public class Distributor {
     public static void startProduction(TwoStageFlowNetwork network){
 
         if(network.totalDemand == network.totalProductionCapacity){
-            network.quantityProduced = network.productionCapacity;
-            network.productionBalance = network.quantityProduced;
+            network.quantityProduced = network.productionCapacity.clone();
+            network.productionBalance = network.quantityProduced.clone();
         }else{
             
         	int quantity = network.totalDemand;
@@ -85,7 +85,7 @@ public class Distributor {
             }
             
             network.quantityProduced = randomAllocationWithCapacities(network.productionCapacity, availablePlants, quantity);
-            network.productionBalance = network.quantityProduced;
+            network.productionBalance = network.quantityProduced.clone();
         }
     }
     
@@ -241,77 +241,59 @@ public class Distributor {
         
         int[] allocated = randomAllocationWithCapacities(capacities, productionCenters, quantity);
         
-        //TODO: update transportedProductS1 and production centers
-        
         for(int i = 0 ; i < allocated.length ; i++) {
         	network.firstStage[i][dc] -= allocated[productionCenters[i]];
         	network.productionBalance[productionCenters[i]] += allocated[productionCenters[i]];
+        	network.distributionInbound[dc] -= allocated[productionCenters[i]];
         }
     }
     
     /**
-    * Method used to balance the first stage of the flow network after the XOver operator is applied
+    * Method used to balance the first stage of the flow network after the second stage swap
+     * and the return of the product are applied. The method uses the random allocation algorithms
+     * to send product from a production center to distribution centers with negative balance
     * @param: productionCenter
     * @param: quantity
     * @param: network 
     **/
     public static void firstStageXOverBalance(int productionCenter,int quantity, TwoStageFlowNetwork network) {
     	//Vector of product quantities to balance and edges
-        Vector<Integer> balanceQuantities = new Vector<>();
-        Vector<Integer> edges = new Vector<>();
-        
+        int[] distributionBalance;
+        int[] distributionCenters;
+        int dcs = 0;
+
         //Add the edges with negative balance to the edge vector, and the product difference in the balance vector
         for (int j = 0 ; j < network.J ; j++) {
             if(network.distributionInbound[j] < network.distributionOutbound[j]){
-                balanceQuantities.add((network.distributionInbound[j] - network.distributionOutbound[j])*-1);
-                edges.add(j);
+                dcs++;
             }
         }
-        
-        int Q = quantity; // Wi'll subtract the random quantity from quantity and Q will not change
-        int randomQuantity;
-        int [] randomEdges = new int[edges.size()]; // array of random edges ¿use Vector?
-        Random rand = new Random();
-        while(quantity != 0){
-        	
-        	//First we randomly choose a number of random edges equal to the unbalanced edges in the network
-            for (int i = 0; i < edges.size(); i++) {
-                randomEdges[i] = rand.nextInt(edges.size());
+
+        distributionBalance = new int[dcs];
+        distributionCenters = new int[dcs];
+        dcs = 0;
+        for (int j = 0 ; j < network.J ; j++) {
+            if(network.distributionInbound[j] < network.distributionOutbound[j]){
+                distributionBalance[dcs] = network.distributionInbound[j] - network.distributionOutbound[j];
+                distributionCenters[dcs] = j;
+                dcs++;
             }
-            
-            /** 
-             * For each edge in the array, generate a random quantity that is less than quantity and
-             * less than the amount of product in the edge e.
-             * Next step is to add the random quantity to the amount of product entering the distribution center.
-             * Then add the random quantity to the actual edge.
-             * Finally we subtract the random quantity from the production balance quantiy of the actual edge  
-             * **/
-            for (int e : randomEdges) {
-                randomQuantity = rand.nextInt((Q - 1) + 1) + 1;
-                randomQuantity = randomQuantity > quantity ? quantity : randomQuantity;
-                randomQuantity = randomQuantity > balanceQuantities.get(e) ? balanceQuantities.get(e) : randomQuantity; 
+        }
 
-                network.distributionInbound[edges.get(e)] += randomQuantity;
-                network.firstStage[productionCenter][edges.get(e)] += randomQuantity;
-                network.productionBalance[productionCenter] -= randomQuantity;
+        int[] allocated = randomAllocationWithCapacities(distributionBalance,distributionCenters,quantity);
 
-                //If the edge is balanced, it is then deleted from the edge vector
-                balanceQuantities.set(e, balanceQuantities.get(e)-randomQuantity);
-                quantity -= randomQuantity;
-                if(balanceQuantities.get(e) == 0){
-                	
-                	edges.del(e);
-                	balanceQuantities.del(e);
-                    /*int edgeIndex = balanceQuantities.find(balanceQuantities.get(e));
-                    balanceQuantities.del(edgeIndex);
-
-                    ImmutableKlocator = edges.find(edges.get(e));
-                    edges.del(locator);*/
-                    randomEdges = new int[edges.size()];
-                    break;
-                }
-                if(quantity == 0)break; // all edges are balanced, exit for and while loops
-            }
+        /*TODO: update production balance. I can do this without using a for loop.
+        * test using for loop and then change*/
+        for(int j = 0 ; j < distributionCenters.length ; j++ ){
+            network.productionBalance[productionCenter] -= allocated[j];
+        }
+        //TODO: update first stage matrix
+        for(int j = 0 ; j < distributionCenters.length ; j++ ){
+            network.firstStage[productionCenter][distributionCenters[j]] += allocated[j];
+        }
+        //TODO: update distribution centers inbound
+        for(int j = 0 ; j < distributionCenters.length ; j++ ){
+            network.distributionInbound[distributionCenters[j]] += allocated[j];
         }
     }
     

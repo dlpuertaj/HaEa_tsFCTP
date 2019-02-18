@@ -7,7 +7,7 @@ package evolution.dlpuertaj;
 
 import java.util.Random;
 
-import evolution.dlpuertaj.utils.Distributor;
+import evolution.dlpuertaj.domain.Distributor;
 import unalcol.search.space.Space;
 
 public class TwoStageNetworkSpace implements Space<TwoStageFlowNetwork>{
