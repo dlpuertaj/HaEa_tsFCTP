@@ -48,7 +48,7 @@ public class NetworkProductionMutation implements Variation_1_1<TwoStageFlowNetw
             if (gb.next() && (child.quantityProduced[i] > 0 && child.productionBalance[i] == 0)) {
 //                System.out.println("Mut: "+i);
                 
-                Distributor.randomPlantTransportation(i, 
+                Distributor.randomPlantTransportation(i,
                                                       child.quantityProduced[i],
                                                       child);
 //                System.out.println("Random transportation");

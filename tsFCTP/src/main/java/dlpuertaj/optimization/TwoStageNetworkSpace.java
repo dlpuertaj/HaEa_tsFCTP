@@ -1,10 +1,11 @@
-package dlpuertaj;/*
+package dlpuertaj.optimization;/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
 
 import java.util.Random;
+
 
 import dlpuertaj.optimization.domain.TwoStageFlowNetwork;
 import dlpuertaj.optimization.domain.tsFCTP;
@@ -15,7 +16,7 @@ public class TwoStageNetworkSpace implements Space<TwoStageFlowNetwork>{
 	
 	public tsFCTP problem;
 	
-	public TwoStageNetworkSpace(tsFCTP problem) {		
+	public TwoStageNetworkSpace(tsFCTP problem) {
 		this.problem = problem;
 	}
 
@@ -27,13 +28,11 @@ public class TwoStageNetworkSpace implements Space<TwoStageFlowNetwork>{
 	
 	@Override
 	public boolean feasible(TwoStageFlowNetwork arg0) {
-
 		return true;
 	}
 
 	@Override
 	public TwoStageFlowNetwork repair(TwoStageFlowNetwork arg0) {
-
 		return arg0;
 	}
 
@@ -74,42 +73,4 @@ public class TwoStageNetworkSpace implements Space<TwoStageFlowNetwork>{
         //System.out.println("S:"+network.testNetwork());
             return network;
     }
-
-   /* 
-    public static void main(String args[]){
-        
-        String instance = "223";
-        tsFCTP problem = new tsFCTP(instance);
-//        problem.showProblemInstance();
-        TwoStageFlowNetwork network1 = new TwoStageFlowNetwork(problem);
-        TwoStageFlowNetwork network2 = new TwoStageFlowNetwork(problem);
-        TwoStageFlowNetwork network3 = new TwoStageFlowNetwork(problem);
-
-        Distributor.startProduction(network1);
-        Distributor.leastCostAllocation(problem.getFixedCostS1(),network1);
-        Distributor.leastCostAllocation(problem.getFixedCostS2(),network1);
-
-        System.out.println("Network with LCA");
-//        System.out.println(network1.toString());
-        System.out.println("Test: "+network1.testNetwork());
-
-        Distributor.startProduction(network2);
-        Distributor.VogelsApproximation(problem.getFixedCostS1(),network2);
-        Distributor.VogelsApproximation(problem.getFixedCostS2(),network2);
-
-        System.out.println("Network with Vogel");
-//        System.out.println(network2.toString());
-        System.out.println("Test: "+network2.testNetwork());
-
-        Distributor.startProduction(network3);
-        Distributor.firstStageInitialDistribution(network3);
-        Distributor.secondStageInitialDistribution(network3);
-
-        System.out.println("Network with Random");
-//        System.out.println(network3.toString());
-        System.out.println("Test: "+network3.testNetwork());
-
-//        System.out.println("Array: "+Arrays.toString(network3.flowArray()));
-    }
-    */
 }

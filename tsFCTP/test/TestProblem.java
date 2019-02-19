@@ -1,6 +1,5 @@
 import static org.junit.jupiter.api.Assertions.*;
 
-import dlpuertaj.optimization.domain.TwoStageFlowNetwork;
 import dlpuertaj.optimization.domain.tsFCTP;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

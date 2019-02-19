@@ -3,13 +3,13 @@ package dlpuertaj.optimization.utils;/*
  * and open the template in the editor.
  */
 
-import dlpuertaj.TwoStageNetworkFlowFitness;
-import dlpuertaj.TwoStageNetworkSpace;
+import dlpuertaj.optimization.TwoStageNetworkFlowFitness;
 import dlpuertaj.optimization.domain.TwoStageFlowNetwork;
 import dlpuertaj.optimization.domain.tsFCTP;
 import dlpuertaj.optimization.operators.DistributionDisablerMutation;
 import dlpuertaj.optimization.operators.NetworkProductionMutation;
 import dlpuertaj.optimization.operators.XOverNetworkCustomers;
+import dlpuertaj.optimization.TwoStageNetworkSpace;
 import unalcol.descriptors.WriteDescriptors;
 import unalcol.evolution.EAFactory;
 import unalcol.evolution.haea.HaeaOperators;

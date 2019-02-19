@@ -1,4 +1,5 @@
 
+
 import dlpuertaj.optimization.domain.TwoStageFlowNetwork;
 import dlpuertaj.optimization.domain.tsFCTP;
 import dlpuertaj.optimization.utils.Distributor;
@@ -47,7 +48,7 @@ public class TestTwoStageFlowNetwork {
 
     @Test
     public void testDistributionBalance(){
-        System.out.println("\nTesting network production balance...");
+        System.out.println("\nTesting network distribution balance...");
         for(int i = 0 ; i < networks.length ; i++){
             System.out.print("Testig with instance: " + INSTANCES[i]);
             assertNotNull(networks[i]);
@@ -59,7 +60,7 @@ public class TestTwoStageFlowNetwork {
 
     @Test
     public void testCustomerBalance(){
-        System.out.println("\nTesting network production balance...");
+        System.out.println("\nTesting network customer balance...");
         for(int i = 0 ; i < networks.length ; i++){
             System.out.print("Testig with instance: " + INSTANCES[i]);
             assertNotNull(networks[i]);
