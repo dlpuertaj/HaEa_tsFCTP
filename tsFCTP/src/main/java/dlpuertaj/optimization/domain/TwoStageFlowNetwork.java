@@ -129,7 +129,7 @@ public class TwoStageFlowNetwork {
             for(int j = 0 ; j < J ; j++){
                 received += secondStage[j][k];
             }
-            if(received != customerDemand[k])
+            if(received != customerDemand[k] || customerBalance[k] != 0)
                 return false;
             else
                 totalReceived += received;

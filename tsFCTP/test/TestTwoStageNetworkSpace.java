@@ -5,6 +5,8 @@ import dlpuertaj.optimization.utils.Distributor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -39,9 +41,12 @@ public class TestTwoStageNetworkSpace {
 
             assertNotNull(space[i]);
 
-            TwoStageFlowNetwork network = space[i].pick();
+            System.out.println();
+            for(int j = 0 ; j < 50 ; j++){
+                TwoStageFlowNetwork network = space[i].pick();
+                assertTrue(network.testNetwork());
+            }
 
-            assertTrue(network.testNetwork());
 
             System.out.println(" ok...");
         }

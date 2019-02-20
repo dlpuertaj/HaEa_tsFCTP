@@ -21,16 +21,14 @@ public class Distributor {
 		
 		Random rand = new Random();
 		int nodes = availableNodes.length;
-		int currentNode = 0;
-		int randomQuantity = 0;
+		int currentNode;
+		int randomQuantity;
 		int referenceAmount = quantity;
 		while(quantity != 0){
             
             if(availableNodes.length == 1){// if there is only one node left, send all the remaining quantity
- 	
             	allocated[availableNodes[0]] += quantity;
             	break;
-                
             }else{
                 currentNode = availableNodes[rand.nextInt(availableNodes.length)]; //random selection of node
                 randomQuantity = rand.nextInt((referenceAmount - 1) + 1) + 1; // random quantity
@@ -160,6 +158,7 @@ public class Distributor {
 
     	Vector<Integer> availableDCS = new Vector<>();
     	int[] availableCustomers = new int[network.K];
+    	int[] remainingDemand = network.customerDemand.clone();
        	int quantity;
     	int currentDC = 0;
                       
@@ -172,20 +171,22 @@ public class Distributor {
         }
         
         Random rand = new Random();
-                
-        while(availableDCS.size() != 0){//until all the product has been sent. But it can be until all DC�s are balanced
+        System.out.println("Available: " + Arrays.toString(availableCustomers));
+        System.out.println("Demand: " + Arrays.toString(remainingDemand));
+        while(availableDCS.size() != 0){//until all the product has been sent. But it can be until all DCs are balanced
         	
         	//Select a distribution center and send all the in-bound product using random allocation
         	currentDC = availableDCS.get(rand.nextInt(availableDCS.size()));
         	
         	quantity = network.distributionInbound[currentDC];
-            
-        	network.secondStage[currentDC] = randomAllocationWithCapacities(network.customerBalance, availableCustomers, quantity);
+
+        	//TODO: use new array
+        	network.secondStage[currentDC] = randomAllocationWithCapacities(remainingDemand, availableCustomers, quantity);
         	
             //update available distribution centers
         	availableDCS.del(currentDC);
         	
-        	//update distribution out-bound and nproduction balance
+        	//update distribution out-bound and production balance
         	int customers = 0;
         	for(int k = 0 ; k < network.secondStage[currentDC].length ; k++) {
         		network.distributionOutbound[currentDC] += network.secondStage[currentDC][k];
@@ -202,6 +203,7 @@ public class Distributor {
 	        	for(int k = 0 ; k < network.K ; k++) {
 	        		if(network.customerBalance[k] != 0) {
 	        			availableCustomers[customers] = k;
+	        			remainingDemand[customers] = network.customerBalance[k];
 	        			customers++;
 	        		}
 	        	}
@@ -256,7 +258,7 @@ public class Distributor {
     * @param: quantity
     * @param: network 
     **/
-    public static void firstStageXOverBalance(int productionCenter,int quantity, TwoStageFlowNetwork network) {
+    public static void firstStageXOverBalance(int productionCenter,TwoStageFlowNetwork network) {
     	//Vector of product quantities to balance and edges
         int[] distributionBalance;
         int[] distributionCenters;
@@ -279,8 +281,8 @@ public class Distributor {
                 dcs++;
             }
         }
-
-        int[] allocated = randomAllocationWithCapacities(distributionBalance,distributionCenters,quantity);
+        System.out.println("DCS" + dcs);
+        int[] allocated = randomAllocationWithCapacities(distributionBalance,distributionCenters,network.productionBalance[productionCenter]);
 
         /*TODO: update production balance. I can do this without using a for loop.
         * test using for loop and then change*/
@@ -391,36 +393,22 @@ public class Distributor {
         }
     }
     
-    /*
-    *
-    */
-    public static void importFirstStagePlan(int [][] plan, TwoStageFlowNetwork network){
-        int[] dcIn = new int[network.J];
-        for (int i = 0; i < network.I; i++) {
-            network.quantityProduced[i] = 0;
-            for (int j = 0; j < network.J; j++) {
-                network.quantityProduced[i] += plan[i][j];
-                dcIn[j] += plan[i][j];
-            }
-            network.firstStage[i] = plan[i].clone();
-        }
-        network.distributionInbound = dcIn.clone();
-    }
-    
-    /*
-    *
+    /**
+     * Method that replaces the second stage of a network with a new distribution plan.
+     * Updating the distribution outbound and the customer balance (just in case)
+     * @param plan : int[][]
+     * @param network : TwoStageFlowNetwork
     */
     public static void importSecondStagePlan(int [][] plan, TwoStageFlowNetwork network){
-        int[] dcOut = new int[network.J];
+        System.arraycopy(network.customerDemand,0,network.customerBalance,0,network.K);
         for (int j = 0; j < network.J; j++) {
             network.distributionOutbound[j] = 0;
             for (int k = 0; k < network.K; k++) {
                 network.distributionOutbound[j] += plan[j][k];
-                dcOut[j] += plan[j][k];
+                network.customerBalance[k] -= plan[j][k];
             }
-            network.secondStage[j] = plan[j].clone();
+            System.arraycopy(plan[j],0,network.secondStage[j],0,network.K);
         }
-        network.distributionOutbound = dcOut.clone();
     }
     
     /*
