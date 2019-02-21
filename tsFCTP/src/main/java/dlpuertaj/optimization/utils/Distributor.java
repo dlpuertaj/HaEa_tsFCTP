@@ -25,26 +25,26 @@ public class Distributor {
 		int randomQuantity;
 		int referenceAmount = quantity;
 		while(quantity != 0){
-            
+
             if(availableNodes.length == 1){// if there is only one node left, send all the remaining quantity
-            	allocated[availableNodes[0]] += quantity;
+                allocated[availableNodes[0]] += quantity;
             	break;
             }else{
                 currentNode = availableNodes[rand.nextInt(availableNodes.length)]; //random selection of node
                 randomQuantity = rand.nextInt((referenceAmount - 1) + 1) + 1; // random quantity
-                
+
                 if(randomQuantity > quantity) //it must not be grater than the available quantity
                     randomQuantity = quantity;
 
                 //it must not be greater the the remaining capacity
                 if(randomQuantity > capacities[currentNode] - allocated[currentNode])
                     randomQuantity = capacities[currentNode] - allocated[currentNode];
-                
+
                 allocated[currentNode] += randomQuantity;
                 quantity -= randomQuantity;
-                
+
                 if(quantity == 0)break;
-                
+
                 if(capacities[currentNode] - allocated[currentNode] == 0){
                 	nodes -= 1;
                     int counter = 0;
@@ -54,7 +54,7 @@ public class Distributor {
                         	availableNodes[counter] = i;
                             counter++;
                         }
-                    } 
+                    }
                 }
             }
         }
@@ -159,8 +159,9 @@ public class Distributor {
     	Vector<Integer> availableDCS = new Vector<>();
     	int[] availableCustomers = new int[network.K];
     	int[] remainingDemand = network.customerDemand.clone();
+    	int[] allocated;
        	int quantity;
-    	int currentDC = 0;
+    	int currentDC;
                       
         for (int j = 0; j < network.J; j++) {
             if(network.distributionInbound[j] > 0)
@@ -169,34 +170,40 @@ public class Distributor {
         for(int k = 0 ; k < network.K ; k++) {
         	availableCustomers[k] = k;
         }
-        
+        System.out.println("\nAvailable Customers..."+Arrays.toString(availableCustomers));
+        System.out.println("Remaining Demand..."+Arrays.toString(remainingDemand));
+        System.out.println("Available DC..."+Arrays.toString(availableDCS.toArray()));
         Random rand = new Random();
-        System.out.println("Available: " + Arrays.toString(availableCustomers));
-        System.out.println("Demand: " + Arrays.toString(remainingDemand));
+        System.out.println("Start allocation...");
         while(availableDCS.size() != 0){//until all the product has been sent. But it can be until all DCs are balanced
-        	
         	//Select a distribution center and send all the in-bound product using random allocation
-        	currentDC = availableDCS.get(rand.nextInt(availableDCS.size()));
-        	
+
+            currentDC = availableDCS.get(rand.nextInt(availableDCS.size()));
         	quantity = network.distributionInbound[currentDC];
 
-        	//TODO: use new array
-        	network.secondStage[currentDC] = randomAllocationWithCapacities(remainingDemand, availableCustomers, quantity);
-        	
+            System.out.println("Current DC... " + currentDC);
+            System.out.println("Quantity... " + quantity);
+
+            //TODO: I have to change random allocation to send product without the availableCustomers array
+        	allocated = randomAllocationWithCapacities(remainingDemand, availableCustomers, quantity);
+            System.out.println("\nAllocated..."+Arrays.toString(allocated));
+
             //update available distribution centers
-        	availableDCS.del(currentDC);
-        	
+
         	//update distribution out-bound and production balance
         	int customers = 0;
-        	for(int k = 0 ; k < network.secondStage[currentDC].length ; k++) {
-        		network.distributionOutbound[currentDC] += network.secondStage[currentDC][k];
-        		network.customerBalance[k] -= network.secondStage[currentDC][k];
-        		if(network.customerBalance[k] != 0)
+        	for(int k = 0 ; k < availableCustomers.length ; k++) {
+        	    network.secondStage[currentDC][availableCustomers[k]] += allocated[k];
+        		network.distributionOutbound[currentDC] += allocated[k];
+        		network.customerBalance[availableCustomers[k]] -= allocated[k];
+        		if(network.customerBalance[availableCustomers[k]] != 0)
         			customers++;
-        	}    	
-        	
+        	}
+            System.out.println("Customer Balance..." + Arrays.toString(network.customerBalance));
+            availableDCS.del(currentDC);
         	if(availableDCS.size() != 0) {
 	        	availableCustomers = new int[customers];
+	        	remainingDemand = new int[customers];
 	        	customers = 0;
 	        	
 	            //update available customers
@@ -207,7 +214,11 @@ public class Distributor {
 	        			customers++;
 	        		}
 	        	}
-        	}      	
+        	}
+            System.out.println("Available Customers..."+Arrays.toString(availableCustomers));
+            System.out.println("Remaining Demand..."+Arrays.toString(remainingDemand));
+            System.out.println("Available DC..."+Arrays.toString(availableDCS.toArray()));
+
         }           
     }
         
@@ -795,67 +806,6 @@ public class Distributor {
             
         }
         
-    }
-    
-    /*
-    *
-    */ 
-    public static int[] flowArray(TwoStageFlowNetwork network){
-        int[] array = new int[network.I*network.J+network.J*network.K];
-        int edge = 0;
-        for (int i = 0; i < network.I; i++) {
-            for (int j = 0; j < network.J; j++) {
-                array[edge] = network.firstStage[i][j];
-                edge++;
-            }
-        }
-        for (int i = 0; i < network.J; i++) {
-            for (int j = 0; j < network.K; j++) {
-                array[edge] = network.secondStage[i][j];
-                edge++;
-            }
-        }
-        return array;
-    }
-    
-    /*
-    *
-    */ 
-    public static void importFlowArray(int[] flowArray, TwoStageFlowNetwork network){
-        boolean stage = true;
-
-        int edge = 0;
-        int i = 0, j = 0, k = 0;
-        while(edge != flowArray.length){
-
-            if(stage == true){
-                network.firstStage[i][j] = flowArray[edge];
-                network.quantityProduced[i] += flowArray[edge];
-                network.distributionInbound[j] += flowArray[edge];
-
-                if(edge == network.I*network.J-1){
-                    j = 0;
-                    stage = false;
-                }else if(j == network.J-1){
-                    i++;
-                    j = 0;
-                }else{
-                    j++;
-                }
-
-            }else{
-                network.secondStage[j][k] = flowArray[edge];
-                network.distributionOutbound[j] += flowArray[edge];
-                network.customerBalance[k] -= flowArray[edge];
-                if(k >= network.K-1){
-                    j++;
-                    k = 0;
-                }else
-                    k++;
-            }
-
-            edge++;
-        }
     }
   
 }

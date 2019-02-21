@@ -135,12 +135,11 @@ class TestDistributor {
 		for(int i = 0 ; i < INSTANCES.length ; i++) {
 			totalDistributionOutbound = 0;
 
-			System.out.print("Testig with instance: " + INSTANCES[i]);
+			System.out.print("Testing with instance: " + INSTANCES[i]);
 			
 			Distributor.startProduction(networks[i]);
 
 			Distributor.firstStageInitialDistribution(networks[i]);
-            System.out.println(networks[i]);
 
 			Distributor.secondStageInitialDistribution(networks[i]);
 				
