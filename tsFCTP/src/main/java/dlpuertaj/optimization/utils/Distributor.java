@@ -28,7 +28,7 @@ public class Distributor {
         }
 
         Random rand = new Random();
-		while(quantity != 0 ){
+		while(quantity != 0 || nodes != 0){
 
             if(availableNodes.length == 1){// if there is only one node left, send all the remaining quantity
                 allocated[availableNodes[0]] += quantity;
@@ -49,9 +49,10 @@ public class Distributor {
 
                 quantity -= randomQuantity;
 
-                if(quantity == 0)break;
+
 
                 if(capacities[currentNode] == 0){
+                    if(quantity == 0)break;
                 	nodes -= 1;
                     int counter = 0;
                     availableNodes = new int[nodes];
