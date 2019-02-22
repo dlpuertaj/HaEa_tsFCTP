@@ -12,45 +12,52 @@ public class Distributor {
 	/**
 	 * Method that allocates random quantities to random nodes (facilities) considering capacities
 	 * @param capacities
-	 * @param availableNodes
 	 * @param quantity
 	 * */
-	public static int[] randomAllocationWithCapacities(int[] capacities, int[] availableNodes,int quantity) {
+	public static int[] randomAllocationWithCapacities(int[] capacities,int quantity) {
         
 		int[] allocated = new int[capacities.length];
-		
-		Random rand = new Random();
+		int[] availableNodes = new int[capacities.length];
 		int nodes = availableNodes.length;
 		int currentNode;
 		int randomQuantity;
 		int referenceAmount = quantity;
-		while(quantity != 0){
+
+		for(int i = 0 ; i < nodes ; i++){
+		    availableNodes[i] = 1;
+        }
+
+        Random rand = new Random();
+		while(quantity != 0 ){
 
             if(availableNodes.length == 1){// if there is only one node left, send all the remaining quantity
                 allocated[availableNodes[0]] += quantity;
             	break;
             }else{
                 currentNode = availableNodes[rand.nextInt(availableNodes.length)]; //random selection of node
-                randomQuantity = rand.nextInt((referenceAmount - 1) + 1) + 1; // random quantity
+                randomQuantity = rand.nextInt((referenceAmount - 1)) + 1; // random quantity
 
                 if(randomQuantity > quantity) //it must not be grater than the available quantity
                     randomQuantity = quantity;
 
                 //it must not be greater the the remaining capacity
-                if(randomQuantity > capacities[currentNode] - allocated[currentNode])
-                    randomQuantity = capacities[currentNode] - allocated[currentNode];
+                if(randomQuantity > capacities[currentNode])
+                    randomQuantity = capacities[currentNode];
 
                 allocated[currentNode] += randomQuantity;
+                capacities[currentNode] -= randomQuantity;
+
                 quantity -= randomQuantity;
 
                 if(quantity == 0)break;
 
-                if(capacities[currentNode] - allocated[currentNode] == 0){
+                if(capacities[currentNode] == 0){
                 	nodes -= 1;
                     int counter = 0;
                     availableNodes = new int[nodes];
-                    for (int i = 0; i < capacities.length ; i++) {
-                        if(capacities[i] - allocated[i] != 0){
+
+                    for (int i = 0; i < allocated.length ; i++) {
+                        if(capacities[i] > 0){
                         	availableNodes[counter] = i;
                             counter++;
                         }
@@ -82,7 +89,7 @@ public class Distributor {
                 availablePlants[i] = i;
             }
             
-            network.quantityProduced = randomAllocationWithCapacities(network.productionCapacity, availablePlants, quantity);
+            network.quantityProduced = randomAllocationWithCapacities(network.productionCapacity, quantity);
             network.productionBalance = network.quantityProduced.clone();
         }
     }
@@ -120,7 +127,7 @@ public class Distributor {
             currentPlant = availablePlants.get(index);
             quantity = network.productionBalance[currentPlant];
             
-            network.firstStage[currentPlant] = randomAllocationWithCapacities(network.distributionCapacity,availableDCs, quantity);
+            network.firstStage[currentPlant] = randomAllocationWithCapacities(network.distributionCapacity, quantity);
             
             network.productionBalance[currentPlant] = 0;
             
@@ -135,7 +142,7 @@ public class Distributor {
         if(availablePlants.size() == 1){
 
             quantity = network.productionBalance[availablePlants.get(0)];
-            network.firstStage[availablePlants.get(0)] = randomAllocationWithCapacities(network.distributionCapacity,availableDCs, quantity);
+            network.firstStage[availablePlants.get(0)] = randomAllocationWithCapacities(network.distributionCapacity,quantity);
 
         	network.productionBalance[availablePlants.get(0)] = 0;
             
@@ -185,7 +192,7 @@ public class Distributor {
             System.out.println("Quantity... " + quantity);
 
             //TODO: I have to change random allocation to send product without the availableCustomers array
-        	allocated = randomAllocationWithCapacities(remainingDemand, availableCustomers, quantity);
+        	allocated = randomAllocationWithCapacities(remainingDemand, quantity);
             System.out.println("\nAllocated..."+Arrays.toString(allocated));
 
             //update available distribution centers
@@ -252,7 +259,7 @@ public class Distributor {
             }
         }
         
-        int[] allocated = randomAllocationWithCapacities(capacities, productionCenters, quantity);
+        int[] allocated = randomAllocationWithCapacities(capacities, quantity);
         
         for(int i = 0 ; i < allocated.length ; i++) {
         	network.firstStage[i][dc] -= allocated[productionCenters[i]];
@@ -293,7 +300,7 @@ public class Distributor {
             }
         }
         System.out.println("DCS" + dcs);
-        int[] allocated = randomAllocationWithCapacities(distributionBalance,distributionCenters,network.productionBalance[productionCenter]);
+        int[] allocated = randomAllocationWithCapacities(distributionBalance,network.productionBalance[productionCenter]);
 
         /*TODO: update production balance. I can do this without using a for loop.
         * test using for loop and then change*/

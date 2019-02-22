@@ -35,6 +35,26 @@ class TestDistributor {
 			i++;
 		}
 	}
+
+    @Test
+    public void testRandomAllocationWithCapacities() {
+        System.out.println("Testing randomAllocationWithCapacities method...");
+
+        for(int i = 0 ; i < INSTANCES.length ; i++) {
+            System.out.print("Testig with instance: " + INSTANCES[i]);
+
+            int[] capacities =	problems[i].productionCapacity.clone();
+            int quantity = networks[i].totalProductionCapacity;
+
+            int[] allocated = Distributor.randomAllocationWithCapacities(capacities, quantity);
+
+            for(int k = 0 ; k < capacities.length ; k++){
+                assertTrue(allocated[k] >= 0);
+                assertTrue(allocated[k] <= problems[i].productionCapacity[k]);
+            }
+            System.out.println("...ok");
+        }
+    }
 	
 	@Test
 	public void startProductionTest() {
@@ -67,31 +87,6 @@ class TestDistributor {
 			for(int j = 0 ; j < networks[i].I ; j++ ) {
 				assertTrue(networks[i].quantityProduced[j] <= problems[i].productionCapacity[j]);
 				assertTrue(networks[i].productionBalance[j] <= problems[i].productionCapacity[j]);
-			}
-			System.out.println("...ok");
-		}
-	}
-	
-	@Test
-	public void testRandomAllocationWithCapacities() {
-		System.out.println("Testing randomAllocationWithCapacities method...");
-		
-		for(int i = 0 ; i < INSTANCES.length ; i++) {
-			System.out.print("Testig with instance: " + INSTANCES[i]);
-			
-			int[] capacities =	problems[i].productionCapacity;
-			int[] availableNodes = new int[capacities.length];
-			int quantity = networks[i].totalProductionCapacity;
-			
-			for(int j = 0 ; j < availableNodes.length ; j++){
-				availableNodes[j] = j;
-			}
-			
-			int[] allocated = Distributor.randomAllocationWithCapacities(capacities, availableNodes, quantity);
-			
-			for(int k = 0 ; k < availableNodes.length ; k++){
-				assertTrue(allocated[k] >= 0);
-				assertTrue(allocated[k] <= capacities[k]);
 			}
 			System.out.println("...ok");
 		}
