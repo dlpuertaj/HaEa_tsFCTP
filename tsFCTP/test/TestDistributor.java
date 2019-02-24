@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-
 class TestDistributor {
 
 	private static final String[] INSTANCES ={"223","224","225","226","227",
@@ -43,15 +42,47 @@ class TestDistributor {
         for(int i = 0 ; i < INSTANCES.length ; i++) {
             System.out.print("Testig with instance: " + INSTANCES[i]);
 
+			System.out.print(" test 1");/**total capacities equals quantity*/
             int[] capacities =	problems[i].productionCapacity.clone();
             int quantity = networks[i].totalProductionCapacity;
-
+            int totalAllocated = 0;
             int[] allocated = Distributor.randomAllocationWithCapacities(capacities, quantity);
 
             for(int k = 0 ; k < capacities.length ; k++){
                 assertTrue(allocated[k] >= 0);
                 assertTrue(allocated[k] <= problems[i].productionCapacity[k]);
+                totalAllocated += allocated[k];
             }
+            assertEquals(totalAllocated,quantity);
+
+			System.out.print(" test 2");/**The quantity is greater than the total capacity**/
+            capacities =	problems[i].productionCapacity.clone();
+            quantity = networks[i].totalProductionCapacity +250;
+            totalAllocated = 0;
+
+            allocated = Distributor.randomAllocationWithCapacities(capacities, quantity);
+
+            for(int k = 0 ; k < capacities.length ; k++){
+                assertTrue(allocated[k] >= 0);
+                assertTrue(allocated[k] <= problems[i].productionCapacity[k]);
+                totalAllocated += allocated[k];
+            }
+            assertEquals(totalAllocated,quantity - 250);
+
+			System.out.print(" test 3");/**The total capacyty is greater than the quantity to be distributed**/
+            capacities =	problems[i].productionCapacity.clone();
+            quantity = networks[i].totalProductionCapacity -250;
+            totalAllocated = 0;
+
+            allocated = Distributor.randomAllocationWithCapacities(capacities, quantity);
+
+            for(int k = 0 ; k < capacities.length ; k++){
+                assertTrue(allocated[k] >= 0);
+                assertTrue(allocated[k] <= problems[i].productionCapacity[k]);
+                totalAllocated += allocated[k];
+            }
+            assertEquals(totalAllocated,quantity);
+
             System.out.println("...ok");
         }
     }
@@ -186,6 +217,29 @@ class TestDistributor {
 	}
 
 	@Test
+	public void testImportSecondStagePlan(){
+		System.out.println("Testing importSecondStagePlans method...");
+
+		for(int i = 0 ; i < INSTANCES.length ; i++) {
+			System.out.print("Testig with instance: " + INSTANCES[i]);
+			TwoStageFlowNetwork network = space[i].pick();
+
+			Distributor.importSecondStagePlan(network.secondStage.clone(),networks[i]);
+
+			assertTrue(networks[i].customerBalance());
+			int j = 0;
+			for(int[] array : network.secondStage){
+				assertTrue(Arrays.equals(array,networks[i].secondStage[j]));
+				assertArrayEquals(array,networks[i].secondStage[j]);
+				j++;
+			}
+
+			assertTrue(Arrays.equals(network.distributionOutbound,networks[i].distributionOutbound));
+			System.out.println(" ok...");
+		}
+	}
+
+	@Test
 	public void testFirstStageXOverBalance(){
 		System.out.println("Testing firstStageXOverBalance method...");
 
@@ -205,22 +259,18 @@ class TestDistributor {
             }
 
 			assertTrue(network.testNetwork());
-
 			Distributor.importSecondStagePlan(network.secondStage,networks[i]);
 
-			assertTrue(!networks[i].testNetwork());
             for (int dc = 0 ; dc < networks[i].J ; dc++) {
                 if(networks[i].distributionInbound[dc] - networks[i].distributionOutbound[dc] > 0){
-                    Distributor.returnProduct(dc,
-                            networks[i].distributionInbound[dc] - networks[i].distributionOutbound[dc]  ,
-                            networks[i]);
+                    Distributor.returnProduct(dc,(networks[i].distributionInbound[dc] - networks[i].distributionOutbound[dc]),networks[i]);
                     assertEquals(networks[i].distributionInbound[dc],networks[i].distributionOutbound[dc]);
                 }
             }
             assertTrue(!networks[i].testNetwork());
             assertTrue(!Arrays.equals(networks[i].productionBalance,new int[network.I]));
 
-            for (int pc = 0 ; pc < networks[pc].I ; pc++) {
+            for (int pc = 0 ; pc < networks[i].I ; pc++) {
                 if(networks[i].productionBalance[pc] > 0) {
                     Distributor.firstStageXOverBalance(pc, networks[i]);
                     assertEquals(0,networks[i].productionBalance[pc] );
@@ -234,29 +284,6 @@ class TestDistributor {
             System.out.println(" ok...");
 		}
 	}
-
-	@Test
-    public void testImportSecondStagePlan(){
-        System.out.println("Testing importSecondStagePlans method...");
-
-        for(int i = 0 ; i < INSTANCES.length ; i++) {
-            System.out.print("Testig with instance: " + INSTANCES[i]);
-            TwoStageFlowNetwork network = space[i].pick();
-
-            Distributor.importSecondStagePlan(network.secondStage.clone(),networks[i]);
-
-            assertTrue(networks[i].customerBalance());
-            int j = 0;
-            for(int[] array : network.secondStage){
-                assertTrue(Arrays.equals(array,networks[i].secondStage[j]));
-                assertArrayEquals(array,networks[i].secondStage[j]);
-                j++;
-            }
-
-            assertTrue(Arrays.equals(network.distributionOutbound,networks[i].distributionOutbound));
-            System.out.println(" ok...");
-        }
-    }
 
     public boolean comparePlan(int[][] p1, int[][] p2){
 	    for(int i = 0 ; i < p1.length ; i++){

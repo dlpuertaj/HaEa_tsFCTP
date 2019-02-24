@@ -11,6 +11,7 @@ public class Distributor {
     
 	/**
 	 * Method that allocates random quantities to random nodes (facilities) considering capacities
+     * It can allocate a quantity greater than or lesser than the total capacity
 	 * @param capacities
 	 * @param quantity
 	 * */
@@ -19,23 +20,24 @@ public class Distributor {
 		int[] allocated = new int[capacities.length];
 		int[] availableNodes = new int[capacities.length];
 		int nodes = availableNodes.length;
-		int currentNode;
+		int currentNode = 0;
 		int randomQuantity;
 		int referenceAmount = quantity;
 
 		for(int i = 0 ; i < nodes ; i++){
-		    availableNodes[i] = 1;
+		    availableNodes[i] = i;
         }
 
         Random rand = new Random();
-		while(quantity != 0 || nodes != 0){
-
+		do{
             if(availableNodes.length == 1){// if there is only one node left, send all the remaining quantity
+                //it must not be greater the the remaining capacity
+                quantity = quantity > capacities[availableNodes[0]] ? capacities[availableNodes[0]] : quantity;
                 allocated[availableNodes[0]] += quantity;
-            	break;
+                nodes--;
             }else{
                 currentNode = availableNodes[rand.nextInt(availableNodes.length)]; //random selection of node
-                randomQuantity = rand.nextInt((referenceAmount - 1)) + 1; // random quantity
+                randomQuantity = rand.nextInt((referenceAmount - 1) + 1) + 1; // random quantity
 
                 if(randomQuantity > quantity) //it must not be grater than the available quantity
                     randomQuantity = quantity;
@@ -48,24 +50,21 @@ public class Distributor {
                 capacities[currentNode] -= randomQuantity;
 
                 quantity -= randomQuantity;
+            }
+            if(capacities[currentNode] == 0){
+                if(quantity == 0 || nodes == 0)break;
+                nodes -= 1;
+                int counter = 0;
+                availableNodes = new int[nodes];
 
-
-
-                if(capacities[currentNode] == 0){
-                    if(quantity == 0)break;
-                	nodes -= 1;
-                    int counter = 0;
-                    availableNodes = new int[nodes];
-
-                    for (int i = 0; i < allocated.length ; i++) {
-                        if(capacities[i] > 0){
-                        	availableNodes[counter] = i;
-                            counter++;
-                        }
+                for (int i = 0; i < allocated.length ; i++) {
+                    if(capacities[i] > 0){
+                        availableNodes[counter] = i;
+                        counter++;
                     }
                 }
             }
-        }
+        }while((quantity != 0) && (nodes != 0));
 		return allocated;
     }
 	
@@ -90,7 +89,7 @@ public class Distributor {
                 availablePlants[i] = i;
             }
             
-            network.quantityProduced = randomAllocationWithCapacities(network.productionCapacity, quantity);
+            network.quantityProduced = randomAllocationWithCapacities(network.productionCapacity.clone(), quantity);
             network.productionBalance = network.quantityProduced.clone();
         }
     }
@@ -120,15 +119,13 @@ public class Distributor {
         }
         
         Random randPlant = new Random();
-       
         while(availablePlants.size() != 1){
 
         	int index = randPlant.nextInt(availablePlants.size());
         	//Select a plant
             currentPlant = availablePlants.get(index);
             quantity = network.productionBalance[currentPlant];
-            
-            network.firstStage[currentPlant] = randomAllocationWithCapacities(network.distributionCapacity, quantity);
+            network.firstStage[currentPlant] = randomAllocationWithCapacities(network.distributionCapacity.clone(), quantity);
             
             network.productionBalance[currentPlant] = 0;
             
@@ -136,14 +133,13 @@ public class Distributor {
             for(int j = 0 ; j < network.J ; j++) {
             	network.distributionInbound[j] += network.firstStage[currentPlant][j]; 
             }
-            
             availablePlants.del(currentPlant);       
         }
         
         if(availablePlants.size() == 1){
 
             quantity = network.productionBalance[availablePlants.get(0)];
-            network.firstStage[availablePlants.get(0)] = randomAllocationWithCapacities(network.distributionCapacity,quantity);
+            network.firstStage[availablePlants.get(0)] = randomAllocationWithCapacities(network.distributionCapacity.clone(),quantity);
 
         	network.productionBalance[availablePlants.get(0)] = 0;
             
@@ -178,25 +174,14 @@ public class Distributor {
         for(int k = 0 ; k < network.K ; k++) {
         	availableCustomers[k] = k;
         }
-        System.out.println("\nAvailable Customers..."+Arrays.toString(availableCustomers));
-        System.out.println("Remaining Demand..."+Arrays.toString(remainingDemand));
-        System.out.println("Available DC..."+Arrays.toString(availableDCS.toArray()));
         Random rand = new Random();
-        System.out.println("Start allocation...");
         while(availableDCS.size() != 0){//until all the product has been sent. But it can be until all DCs are balanced
         	//Select a distribution center and send all the in-bound product using random allocation
 
             currentDC = availableDCS.get(rand.nextInt(availableDCS.size()));
         	quantity = network.distributionInbound[currentDC];
 
-            System.out.println("Current DC... " + currentDC);
-            System.out.println("Quantity... " + quantity);
-
-            //TODO: I have to change random allocation to send product without the availableCustomers array
         	allocated = randomAllocationWithCapacities(remainingDemand, quantity);
-            System.out.println("\nAllocated..."+Arrays.toString(allocated));
-
-            //update available distribution centers
 
         	//update distribution out-bound and production balance
         	int customers = 0;
@@ -207,7 +192,6 @@ public class Distributor {
         		if(network.customerBalance[availableCustomers[k]] != 0)
         			customers++;
         	}
-            System.out.println("Customer Balance..." + Arrays.toString(network.customerBalance));
             availableDCS.del(currentDC);
         	if(availableDCS.size() != 0) {
 	        	availableCustomers = new int[customers];
@@ -223,11 +207,7 @@ public class Distributor {
 	        		}
 	        	}
         	}
-            System.out.println("Available Customers..."+Arrays.toString(availableCustomers));
-            System.out.println("Remaining Demand..."+Arrays.toString(remainingDemand));
-            System.out.println("Available DC..."+Arrays.toString(availableDCS.toArray()));
-
-        }           
+        }
     }
         
     /**
@@ -251,7 +231,7 @@ public class Distributor {
         productionCenters = new int[pc];
         capacities = new int[pc];
         pc = 0;
-        
+
         for (int i = 0 ; i < network.I ; i++) {
             if(network.firstStage[i][dc] > 0) {//Only edges with positive flow
                 productionCenters[pc] = i;
@@ -259,28 +239,27 @@ public class Distributor {
             	pc++;
             }
         }
-        
+
         int[] allocated = randomAllocationWithCapacities(capacities, quantity);
-        
+
         for(int i = 0 ; i < allocated.length ; i++) {
-        	network.firstStage[i][dc] -= allocated[productionCenters[i]];
-        	network.productionBalance[productionCenters[i]] += allocated[productionCenters[i]];
-        	network.distributionInbound[dc] -= allocated[productionCenters[i]];
+        	network.firstStage[productionCenters[i]][dc] -= allocated[i];
+        	network.productionBalance[productionCenters[i]] += allocated[i];
+        	network.distributionInbound[dc] -= allocated[i];
         }
     }
     
     /**
     * Method used to balance the first stage of the flow network after the second stage swap
-     * and the return of the product are applied. The method uses the random allocation algorithms
-     * to send product from a production center to distribution centers with negative balance
+    * and the return of the product are applied. The method uses the random allocation algorithms
+    * to send product from a production center to distribution centers with negative balance
     * @param: productionCenter
     * @param: quantity
     * @param: network 
     **/
     public static void firstStageXOverBalance(int productionCenter,TwoStageFlowNetwork network) {
-    	//Vector of product quantities to balance and edges
-        int[] distributionBalance;
-        int[] distributionCenters;
+    	// of product quantities to balance and edges
+
         int dcs = 0;
 
         //Add the edges with negative balance to the edge vector, and the product difference in the balance vector
@@ -290,29 +269,30 @@ public class Distributor {
             }
         }
 
-        distributionBalance = new int[dcs];
-        distributionCenters = new int[dcs];
+        int[] distributionBalance = new int[dcs];
+        int[] distributionCenters = new int[dcs];
+
         dcs = 0;
         for (int j = 0 ; j < network.J ; j++) {
             if(network.distributionInbound[j] < network.distributionOutbound[j]){
-                distributionBalance[dcs] = network.distributionInbound[j] - network.distributionOutbound[j];
+                distributionBalance[dcs] = (network.distributionInbound[j] - network.distributionOutbound[j])*-1;
                 distributionCenters[dcs] = j;
                 dcs++;
             }
         }
-        System.out.println("DCS" + dcs);
+
         int[] allocated = randomAllocationWithCapacities(distributionBalance,network.productionBalance[productionCenter]);
 
-        /*TODO: update production balance. I can do this without using a for loop.
+        /*pdate production balance. I can do this without using a for loop.
         * test using for loop and then change*/
         for(int j = 0 ; j < distributionCenters.length ; j++ ){
             network.productionBalance[productionCenter] -= allocated[j];
         }
-        //TODO: update first stage matrix
+        //update first stage matrix
         for(int j = 0 ; j < distributionCenters.length ; j++ ){
             network.firstStage[productionCenter][distributionCenters[j]] += allocated[j];
         }
-        //TODO: update distribution centers inbound
+        //update distribution centers inbound
         for(int j = 0 ; j < distributionCenters.length ; j++ ){
             network.distributionInbound[distributionCenters[j]] += allocated[j];
         }
@@ -571,10 +551,10 @@ public class Distributor {
     public static void leastCostAllocation(int[][] leastCostMatrix, TwoStageFlowNetwork n){
 	   
 		
-        int leastCost = 0;
+        int leastCost;
         int count = 0;
-        int s = 0;
-        int d = 0;
+        int s;
+        int d;
             
         int[] supply;
         int[] demand;
@@ -711,28 +691,24 @@ public class Distributor {
         int[] supply;
         int[] demand;
         int[] supplyPenalties;
-        int[] demandPenalties = null;
-        
-        
+        int[] demandPenalties;
+
         if(costMatrix.length == network.I && costMatrix[0].length == network.J){
                     
             supply = network.quantityProduced.clone();
             demand = network.distributionCapacity.clone();
 
         }else{
-            //System.out.println("Second Stage");
             supply = network.distributionInbound.clone();
             demand = network.customerDemand.clone();
         }
         
         int count = 0;    
         int row;
-        int col = 0;
+        int col;
         
         Vector<int[]> penalties;
         while(count != network.totalDemand){
-            row = 0;
-            col = 0;
             
             penalties = findSupplyPenalties(costMatrix, supply, demand);
         
@@ -815,5 +791,4 @@ public class Distributor {
         }
         
     }
-  
 }

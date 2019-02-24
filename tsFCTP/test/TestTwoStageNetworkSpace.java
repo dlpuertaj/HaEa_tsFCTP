@@ -1,7 +1,6 @@
 import dlpuertaj.optimization.TwoStageNetworkSpace;
 import dlpuertaj.optimization.domain.TwoStageFlowNetwork;
 import dlpuertaj.optimization.domain.tsFCTP;
-import dlpuertaj.optimization.utils.Distributor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -46,7 +45,6 @@ public class TestTwoStageNetworkSpace {
                 TwoStageFlowNetwork network = space[i].pick();
                 assertTrue(network.testNetwork());
             }
-
 
             System.out.println(" ok...");
         }

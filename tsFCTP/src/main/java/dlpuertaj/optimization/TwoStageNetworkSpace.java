@@ -45,32 +45,27 @@ public class TwoStageNetworkSpace implements Space<TwoStageFlowNetwork>{
 
         switch(choice){
             case 0:
-                //System.out.println(choice); 	
                 Distributor.leastCostAllocation(problem.getFixedCostS1(),network);
                 Distributor.leastCostAllocation(problem.getFixedCostS2(),network);
                 break;
             case 1:
-                //System.out.println(choice);
                 Distributor.leastCostAllocation(problem.getTransportCostS1(),network);
                 Distributor.leastCostAllocation(problem.getTransportCostS2(),network);
                 break;
             case 2:
-                //System.out.println(choice);
-                    Distributor.VogelsApproximation(problem.getTransportCostS1(),network);
-                    Distributor.VogelsApproximation(problem.getTransportCostS2(),network);
+                Distributor.VogelsApproximation(problem.getTransportCostS1(),network);
+                Distributor.VogelsApproximation(problem.getTransportCostS2(),network);
                 break;
             case 3:
-                //System.out.println(choice);
-                    Distributor.VogelsApproximation(problem.getFixedCostS1(),network);
-                    Distributor.VogelsApproximation(problem.getFixedCostS2(),network);
+                Distributor.VogelsApproximation(problem.getFixedCostS1(),network);
+                Distributor.VogelsApproximation(problem.getFixedCostS2(),network);
                 break;
             case 4: 
-                //System.out.println(choice);
                 Distributor.firstStageInitialDistribution(network);
                 Distributor.secondStageInitialDistribution(network);
                 break; 
         }
-        //System.out.println("S:"+network.testNetwork());
-            return network;
+        network.productionBalance = new int[network.I];
+        return network;
     }
 }
