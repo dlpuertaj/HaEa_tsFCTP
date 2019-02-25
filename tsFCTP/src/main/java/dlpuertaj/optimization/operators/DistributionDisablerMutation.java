@@ -56,9 +56,7 @@ public class DistributionDisablerMutation implements Variation_1_1<TwoStageFlowN
 
                     for (int i = 0 ; i < child.I ; i++) {
                         if(child.productionBalance[i] > 0)
-                            Distributor.firstStageDistributionBalance(i, 
-                                                                      child.productionBalance[i], 
-                                                                      child);
+                            Distributor.firstStageDistributionBalance(i,child.productionBalance[i],child);
 
                     }
 
@@ -67,7 +65,6 @@ public class DistributionDisablerMutation implements Variation_1_1<TwoStageFlowN
                             Distributor.secondStageDistributionBalance( dc    , 
                                                                         child.distributionInbound[dc] - child.distributionOutbound[dc] , 
                                                                         child);
-
                     }
                     break;
                 }

@@ -20,7 +20,7 @@ class TestDistributor {
 	private TwoStageNetworkSpace[] space;
 	
 	@BeforeEach
-	public void init() {
+	void init() {
 		System.out.println("\nBuilding instances and networks...");
 		
 		problems = new tsFCTP[INSTANCES.length];
@@ -36,13 +36,13 @@ class TestDistributor {
 	}
 
     @Test
-    public void testRandomAllocationWithCapacities() {
+    void testRandomAllocationWithCapacities() {
         System.out.println("Testing randomAllocationWithCapacities method...");
 
         for(int i = 0 ; i < INSTANCES.length ; i++) {
             System.out.print("Testig with instance: " + INSTANCES[i]);
 
-			System.out.print(" test 1");/**total capacities equals quantity*/
+			System.out.print(" test 1");
             int[] capacities =	problems[i].productionCapacity.clone();
             int quantity = networks[i].totalProductionCapacity;
             int totalAllocated = 0;
@@ -55,7 +55,7 @@ class TestDistributor {
             }
             assertEquals(totalAllocated,quantity);
 
-			System.out.print(" test 2");/**The quantity is greater than the total capacity**/
+			System.out.print(" test 2");
             capacities =	problems[i].productionCapacity.clone();
             quantity = networks[i].totalProductionCapacity +250;
             totalAllocated = 0;
@@ -69,7 +69,7 @@ class TestDistributor {
             }
             assertEquals(totalAllocated,quantity - 250);
 
-			System.out.print(" test 3");/**The total capacyty is greater than the quantity to be distributed**/
+			System.out.print(" test 3");
             capacities =	problems[i].productionCapacity.clone();
             quantity = networks[i].totalProductionCapacity -250;
             totalAllocated = 0;
@@ -88,7 +88,7 @@ class TestDistributor {
     }
 	
 	@Test
-	public void startProductionTest() {
+	void startProductionTest() {
 		System.out.println("Testing startProduction method...");
 		int initialProduction;
 		for(int i = 0 ; i < INSTANCES.length ; i++) {
@@ -124,7 +124,7 @@ class TestDistributor {
 	}
 	
 	@Test
-	public void testFirstStageInitialDistribution() {
+	void testFirstStageInitialDistribution() {
 		System.out.println("Testing firstStageInitialDistributions method...");
 		
 		int totalDistributionInbound;
@@ -153,7 +153,7 @@ class TestDistributor {
 	}
 	
 	@Test
-	public void testSecondStageInitialDistribution() {
+	void testSecondStageInitialDistribution() {
 		System.out.println("Testing secondStageInitialDistributions method...");
 		
 		int totalDistributionOutbound;
@@ -171,22 +171,22 @@ class TestDistributor {
 				
 			int j = 0;
 			for(int out : networks[i].distributionOutbound) {
-				assertTrue(networks[i].distributionInbound[j] - networks[i].distributionInbound[j] == 0);
+                assertEquals(0, networks[i].distributionInbound[j] - networks[i].distributionOutbound[j]);
 				totalDistributionOutbound += out;
 				j++;
 			}
-			
-			assertTrue(totalDistributionOutbound == networks[i].totalDemand);
+
+            assertEquals(totalDistributionOutbound, networks[i].totalDemand);
 			
 			for(int balance : networks[i].customerBalance) {
-				assertTrue(balance == 0);
+                assertEquals(0, balance);
 			}
 			System.out.println("...ok");
 		}
 	}
 
 	@Test
-	public void testReturnProduct(){
+	void testReturnProduct(){
 		System.out.println("Testing returnProduct method...");
 
 		System.out.print("Testig with instance: " + INSTANCES[0]);
@@ -212,12 +212,12 @@ class TestDistributor {
 			balance += networks[0].productionBalance[i];
 			sent += (originalDistribution[i][0] - networks[0].firstStage[i][0]);
 		}
-		assertTrue(balance == 50);
-		assertTrue(sent == 50);
+        assertEquals(50, balance);
+        assertEquals(50, sent);
 	}
 
 	@Test
-	public void testImportSecondStagePlan(){
+	void testImportSecondStagePlan(){
 		System.out.println("Testing importSecondStagePlans method...");
 
 		for(int i = 0 ; i < INSTANCES.length ; i++) {
@@ -229,18 +229,18 @@ class TestDistributor {
 			assertTrue(networks[i].customerBalance());
 			int j = 0;
 			for(int[] array : network.secondStage){
-				assertTrue(Arrays.equals(array,networks[i].secondStage[j]));
+                assertArrayEquals(array, networks[i].secondStage[j]);
 				assertArrayEquals(array,networks[i].secondStage[j]);
 				j++;
 			}
 
-			assertTrue(Arrays.equals(network.distributionOutbound,networks[i].distributionOutbound));
+            assertArrayEquals(network.distributionInbound, networks[i].distributionOutbound);
 			System.out.println(" ok...");
 		}
 	}
 
 	@Test
-	public void testFirstStageXOverBalance(){
+    void testFirstStageXOverBalance(){
 		System.out.println("Testing firstStageXOverBalance method...");
 
 		for(int i = 0 ; i < INSTANCES.length ; i++) {
@@ -285,11 +285,18 @@ class TestDistributor {
 		}
 	}
 
-    public boolean comparePlan(int[][] p1, int[][] p2){
+    @Test
+    void testFirstStageDistributionBalance(){
+        //TODO: implement test
+    }
+
+    boolean comparePlan(int[][] p1, int[][] p2){
 	    for(int i = 0 ; i < p1.length ; i++){
 	        if(!Arrays.equals(p1[i],p2[i]))
                 return false;
         }
 	    return true;
     }
+
+
 }

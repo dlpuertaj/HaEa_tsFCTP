@@ -1,10 +1,11 @@
- package dlpuertaj.optimization.utils;
+package dlpuertaj.optimization.utils;
 
 import dlpuertaj.optimization.domain.TwoStageFlowNetwork;
 import unalcol.types.collection.vector.Vector;
 
 import java.util.Arrays;
 import java.util.Random;
+
 
 
 public class Distributor {
@@ -122,14 +123,12 @@ public class Distributor {
         while(availablePlants.size() != 1){
 
         	int index = randPlant.nextInt(availablePlants.size());
-        	//Select a plant
             currentPlant = availablePlants.get(index);
             quantity = network.productionBalance[currentPlant];
             network.firstStage[currentPlant] = randomAllocationWithCapacities(network.distributionCapacity.clone(), quantity);
             
             network.productionBalance[currentPlant] = 0;
             
-            //calculate ditribution inbound
             for(int j = 0 ; j < network.J ; j++) {
             	network.distributionInbound[j] += network.firstStage[currentPlant][j]; 
             }
@@ -146,7 +145,6 @@ public class Distributor {
             for(int j = 0 ; j < network.J ; j++) {
             	network.distributionInbound[j] += network.firstStage[availablePlants.get(0)][j]; 
             }
-            
             availablePlants.del(availablePlants.get(0));
         }
     }
@@ -209,7 +207,26 @@ public class Distributor {
         	}
         }
     }
-        
+
+
+    /**
+     * Method that replaces the second stage of a network with a new distribution plan.
+     * Updating the distribution outbound and the customer balance (just in case)
+     * @param plan
+     * @param network
+     */
+    public static void importSecondStagePlan(int [][] plan, TwoStageFlowNetwork network){
+        System.arraycopy(network.customerDemand,0,network.customerBalance,0,network.K);
+        for (int j = 0; j < network.J; j++) {
+            network.distributionOutbound[j] = 0;
+            for (int k = 0; k < network.K; k++) {
+                network.distributionOutbound[j] += plan[j][k];
+                network.customerBalance[k] -= plan[j][k];
+            }
+            System.arraycopy(plan[j],0,network.secondStage[j],0,network.K);
+        }
+    }
+
     /**
     * Method that returns random amounts of product from a distribution center
     * to production centers (through random positive edges) using the random allocation algorithm
@@ -248,7 +265,7 @@ public class Distributor {
         	network.distributionInbound[dc] -= allocated[i];
         }
     }
-    
+
     /**
     * Method used to balance the first stage of the flow network after the second stage swap
     * and the return of the product are applied. The method uses the random allocation algorithms
@@ -259,7 +276,6 @@ public class Distributor {
     **/
     public static void firstStageXOverBalance(int productionCenter,TwoStageFlowNetwork network) {
     	// of product quantities to balance and edges
-
         int dcs = 0;
 
         //Add the edges with negative balance to the edge vector, and the product difference in the balance vector
@@ -297,54 +313,74 @@ public class Distributor {
             network.distributionInbound[distributionCenters[j]] += allocated[j];
         }
     }
-    
-    /*
-    *
-    */
-    public static void firstStageDistributionBalance(int plant,int quantity, TwoStageFlowNetwork network) {
-        Vector<Integer> edges = new Vector<>();
-        for (int j = 0 ; j < network.J ; j++) {
-            if(network.distributionInbound[j] > 0)
-                edges.add(j);
+
+    /**
+     * Method that closes a distribution center and returns all the product passing through it.
+     * It return the product from the customers to the production centers.
+     *
+     * @param dc : int
+     * @param network : TwoStageFlowNetwork
+     */
+    public static void closeDistributionCenter(int dc, TwoStageFlowNetwork network){
+
+        network.distributionInbound[dc] = 0;
+        network.distributionOutbound[dc] = 0;
+        for (int k = 0; k < network.K; k++) {
+            network.customerBalance[k] += network.secondStage[dc][k];
+            network.secondStage[dc][k] = 0;
         }
-        
-        int Q = quantity;
-        int randomQuantity;
-        int [] randomEdges = new int[edges.size()];
-        Random rand = new Random();
-        
-        while(quantity != 0){
-        	
-            //UniformIntegerGenerator edgeSelector = new UniformIntegerGenerator(edges.size());
-            //randomEdges = edgeSelector.generate(edges.size());
-
-            if(edges.size() == 1){
-                network.productionBalance[plant] -= quantity;
-                network.firstStage[plant][edges.get(0)] += quantity;
-                network.distributionInbound[edges.get(0)] += quantity;
-                quantity = 0;
-            }else{
-                for (int i = 0; i < edges.size(); i++) {
-                randomEdges[i] = rand.nextInt(edges.size());
-                }
-                for (int e : randomEdges) {
-                    randomQuantity = rand.nextInt((Q - 1) + 1) + 1;
-                    randomQuantity = randomQuantity > quantity ? quantity : randomQuantity;
-
-                    network.productionBalance[plant] -= randomQuantity;
-                    network.firstStage[plant][edges.get(e)] += randomQuantity;
-                    network.distributionInbound[edges.get(e)] += randomQuantity;
-
-                    quantity -= randomQuantity;
-                    if(quantity == 0)break;
-                }
-            }
+        for (int i = 0; i < network.I; i++) {
+            network.productionBalance[i] += network.firstStage[i][dc];
+            network.firstStage[i][dc] = 0;
         }
     }
 
-    /*
+    /**
+    * Method that balances the first stage of a network after a distribution center had been closed
     *
+    * @param pc
+    * @param quantity
+    * @param network
+    *
+    * TODO: implement unit test
     */
+    public static void firstStageDistributionBalance(int pc,int quantity, TwoStageFlowNetwork network) {
+        int distributionCenters = 0;
+
+        for (int j = 0 ; j < network.J ; j++) {
+            if(network.distributionInbound[j] > 0)
+                distributionCenters++;
+        }
+
+        int[] available = new int[distributionCenters];
+        int[] capacities = new int[distributionCenters];
+        distributionCenters = 0;
+        for (int j = 0 ; j < network.J ; j++) {
+            if(network.distributionInbound[j] > 0) {
+                available[distributionCenters] = j;
+                capacities[distributionCenters] = network.totalDemand;
+                distributionCenters++;
+            }
+        }
+
+        int[] allocated = randomAllocationWithCapacities(capacities,quantity);
+
+        network.productionBalance[pc] = 0;
+        for(int j = 0 ; j < allocated.length ; j++){
+             network.firstStage[pc][available[j]] += allocated[j];
+             network.distributionInbound[available[j]] += allocated[j];
+        }
+    }
+
+    /**
+     * Method that balances the second stage of a network after a the balance of the first stage
+     *
+     * @param dc
+     * @param quantity
+     * @param network
+     *
+     * TODO: I need to implement the method without using the randomEdge array and using the random allocation
+     */
     public static void secondStageDistributionBalance(int dc, int quantity, TwoStageFlowNetwork network) {
         Vector<Integer> balanceQuantities = new Vector<>();
         Vector<Integer> edges = new Vector<>();
@@ -360,14 +396,11 @@ public class Distributor {
         int [] randomEdges = new int[edges.size()];
         Random rand = new Random();
         while(quantity != 0){
-        	
-            //UniformIntegerGenerator edgeSelector = new UniformIntegerGenerator(edges.size());
-            //randomEdges = edgeSelector.generate(edges.size());
+
             for (int i = 0; i < edges.size(); i++) {
                 randomEdges[i] = rand.nextInt(edges.size());
             }
-            
-            
+
             for (int e : randomEdges) {
                 randomQuantity = rand.nextInt((Q - 1) + 1) + 1;
                 randomQuantity = randomQuantity > quantity ? quantity : randomQuantity;
@@ -382,8 +415,6 @@ public class Distributor {
                 if(balanceQuantities.get(e) == 0){
                     balanceQuantities.del(e);
                     edges.del(e);
-                    //Location<Integer> locator = edges.find(edges.get(e));
-                    //edges.del(locator);
                     randomEdges = new int[edges.size()];
                     break;
                 }
@@ -392,43 +423,8 @@ public class Distributor {
         }
     }
     
-    /**
-     * Method that replaces the second stage of a network with a new distribution plan.
-     * Updating the distribution outbound and the customer balance (just in case)
-     * @param plan : int[][]
-     * @param network : TwoStageFlowNetwork
-    */
-    public static void importSecondStagePlan(int [][] plan, TwoStageFlowNetwork network){
-        System.arraycopy(network.customerDemand,0,network.customerBalance,0,network.K);
-        for (int j = 0; j < network.J; j++) {
-            network.distributionOutbound[j] = 0;
-            for (int k = 0; k < network.K; k++) {
-                network.distributionOutbound[j] += plan[j][k];
-                network.customerBalance[k] -= plan[j][k];
-            }
-            System.arraycopy(plan[j],0,network.secondStage[j],0,network.K);
-        }
-    }
-    
-    /*
-    *
-    */
-    public static void closeDistributionCenter(int DC, TwoStageFlowNetwork network){
-		
-        network.distributionInbound[DC] = 0;
-        network.distributionOutbound[DC] = 0;
-        for (int k = 0; k < network.K; k++) {
-            network.customerBalance[k] += network.secondStage[DC][k];
-            network.secondStage[DC][k] = 0;
-        }
-        for (int i = 0; i < network.I; i++) {
-            network.productionBalance[i] += network.firstStage[i][DC];
-            network.firstStage[i][DC] = 0;
-        }
-    }
-    
-   /*
-    *
+   /**
+    *TODO: I need to use the random allocation algorithms instead of this method
     */    
     public static void randomPlantTransportation(int plant, int quantity, TwoStageFlowNetwork network) {
         int[] edges = new int[network.J];
