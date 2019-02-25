@@ -287,7 +287,26 @@ class TestDistributor {
 
     @Test
     void testFirstStageDistributionBalance(){
-        //TODO: implement test
+        System.out.println("Testing firstStageDistributionBalance method...");
+
+        for(int i = 0 ; i < INSTANCES.length ; i++) {
+            System.out.print("Testig with instance: " + INSTANCES[i]);
+
+            Distributor.startProduction(networks[i]);
+            Distributor.firstStageInitialDistribution(networks[i]);
+            Distributor.secondStageInitialDistribution(networks[i]);
+
+            assertTrue(networks[i].testNetwork());
+
+            for (int j = 0 ; j < networks[i].J ; j++) {
+                if (networks[i].distributionInbound[j] > 0) {
+                    Distributor.closeDistributionCenter(j,networks[i]);
+                    break;
+                }
+            }
+            assertTrue(!networks[i].testNetwork());
+            System.out.println(" ok...");
+        }
     }
 
     boolean comparePlan(int[][] p1, int[][] p2){
