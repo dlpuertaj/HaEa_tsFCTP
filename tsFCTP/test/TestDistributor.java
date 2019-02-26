@@ -188,7 +188,6 @@ class TestDistributor {
 	@Test
 	void testReturnProduct(){
 		System.out.println("Testing returnProduct method...");
-
 		System.out.print("Testig with instance: " + INSTANCES[0]);
 
 		Distributor.startProduction(networks[0]);
@@ -196,24 +195,35 @@ class TestDistributor {
 		Distributor.firstStageInitialDistribution(networks[0]);
 
 		int originalInbound = networks[0].distributionInbound[0];
+
 		int[][] originalDistribution = new int[networks[0].I][];
 		for(int i = 0 ; i < networks[0].I ; i++){
 			originalDistribution[i] = networks[0].firstStage[i].clone();
 		}
-
-		networks[0].distributionInbound[0] += 50;
+        //Its possible that de dc 0 has no inbound from any production centers
+        //So there is no positive edges and we cant return product
+        int dcWithInbound = 0;
+		for(int j = 0 ; j < networks[0].J ; j++){
+            if(networks[0].distributionInbound[j] > 0){
+                dcWithInbound = j;
+                break;
+            }
+        }
+		networks[0].distributionInbound[dcWithInbound] += 50;
 
 		Distributor.returnProduct(0,50,networks[0]);
-		assertEquals(originalInbound, networks[0].distributionInbound[0]);
+		assertEquals(originalInbound, networks[0].distributionInbound[dcWithInbound]);
 
 		int balance = 0;
 		int sent = 0;
 		for(int i = 0 ; i < networks[0].I ; i++){
 			balance += networks[0].productionBalance[i];
-			sent += (originalDistribution[i][0] - networks[0].firstStage[i][0]);
+			sent += (originalDistribution[i][dcWithInbound] - networks[0].firstStage[i][dcWithInbound]);
 		}
         assertEquals(50, balance);
         assertEquals(50, sent);
+
+        System.out.println(" ok...");
 	}
 
 	@Test
@@ -267,7 +277,7 @@ class TestDistributor {
                     assertEquals(networks[i].distributionInbound[dc],networks[i].distributionOutbound[dc]);
                 }
             }
-            assertTrue(!networks[i].testNetwork());
+            assertEquals(false,networks[i].testNetwork());
             assertTrue(!Arrays.equals(networks[i].productionBalance,new int[network.I]));
 
             for (int pc = 0 ; pc < networks[i].I ; pc++) {
@@ -297,14 +307,67 @@ class TestDistributor {
             Distributor.secondStageInitialDistribution(networks[i]);
 
             assertTrue(networks[i].testNetwork());
-
+            int closed = 0;
             for (int j = 0 ; j < networks[i].J ; j++) {
                 if (networks[i].distributionInbound[j] > 0) {
+                    closed = j;
                     Distributor.closeDistributionCenter(j,networks[i]);
+                    assertEquals(0,networks[i].distributionInbound[j]);
+                    assertEquals(0,networks[i].distributionOutbound[j]);
                     break;
                 }
             }
             assertTrue(!networks[i].testNetwork());
+
+            for (int j = 0 ; j < networks[i].I ; j++) {
+                if(networks[i].productionBalance[j] > 0)
+                    Distributor.firstStageDistributionBalance(j,closed,networks[i]);
+                assertEquals(0,networks[i].productionBalance[j]);
+            }
+
+            System.out.println(" ok...");
+        }
+    }
+
+    @Test
+    void testSecondStageDistributionBalance(){
+        System.out.println("Testing secondStageDistributionBalance method...");
+
+        for(int i = 0 ; i < INSTANCES.length ; i++) {
+            System.out.print("Testig with instance: " + INSTANCES[i]);
+
+            Distributor.startProduction(networks[i]);
+            Distributor.firstStageInitialDistribution(networks[i]);
+            Distributor.secondStageInitialDistribution(networks[i]);
+
+            assertTrue(networks[i].testNetwork());
+            int closed = 0;
+            for (int j = 0 ; j < networks[i].J ; j++) {
+                if (networks[i].distributionInbound[j] > 0) {
+                    closed = j;
+                    Distributor.closeDistributionCenter(j,networks[i]);
+                    assertEquals(0,networks[i].distributionInbound[j]);
+                    assertEquals(0,networks[i].distributionOutbound[j]);
+                    break;
+                }
+            }
+            assertTrue(!networks[i].testNetwork());
+
+            for (int j = 0 ; j < networks[i].I ; j++) {
+                if(networks[i].productionBalance[j] > 0)
+                    Distributor.firstStageDistributionBalance(j,closed,networks[i]);
+                assertEquals(0,networks[i].productionBalance[j]);
+            }
+
+            assertNotEquals(true,networks[i].distributionBalance());
+            assertNotEquals(true,networks[i].customerBalance());
+
+            for (int dc = 0 ; dc < networks[i].J ; dc++) {
+                if(networks[i].distributionInbound[dc] - networks[i].distributionOutbound[dc] > 0)
+                    Distributor.secondStageDistributionBalance( dc,networks[i]);
+            }
+
+            assertTrue(networks[i].testNetwork());
             System.out.println(" ok...");
         }
     }

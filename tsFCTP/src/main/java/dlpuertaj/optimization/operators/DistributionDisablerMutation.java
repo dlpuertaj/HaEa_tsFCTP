@@ -20,7 +20,7 @@ public class DistributionDisablerMutation implements Variation_1_1<TwoStageFlowN
   /**
    * Probability of mutating one single bit
    */
-  protected double vertex_mutation_rate = 0.0;
+  protected double vertex_mutation_rate;
 
   /**
    * Constructor: Creates a mutation with the given mutation rate
@@ -41,10 +41,12 @@ public class DistributionDisablerMutation implements Variation_1_1<TwoStageFlowN
         TwoStageFlowNetwork child = new TwoStageFlowNetwork(network);
 
         int activated = 0;
+        int closed;
         for (int j = 0 ; j < child.J ; j++) {
             if (child.distributionInbound[j] > 0) {
                 activated++;
-                if (activated > 1)break;   
+                if (activated > 1)
+                    break;
             }
         }
         if (activated > 1) {
@@ -53,18 +55,16 @@ public class DistributionDisablerMutation implements Variation_1_1<TwoStageFlowN
             for (int j = 0 ; j < child.J ; j++) {
                 if (gb.next() && child.distributionInbound[j] > 0) {
                     Distributor.closeDistributionCenter(j,child);
-
+                    closed = j;
                     for (int i = 0 ; i < child.I ; i++) {
                         if(child.productionBalance[i] > 0)
-                            Distributor.firstStageDistributionBalance(i,child.productionBalance[i],child);
+                            Distributor.firstStageDistributionBalance(i,closed,child);
 
                     }
 
                     for (int dc = 0 ; dc < child.J ; dc++) {
                         if(child.distributionInbound[dc] - child.distributionOutbound[dc] > 0)
-                            Distributor.secondStageDistributionBalance( dc    , 
-                                                                        child.distributionInbound[dc] - child.distributionOutbound[dc] , 
-                                                                        child);
+                            Distributor.secondStageDistributionBalance( dc,child);
                     }
                     break;
                 }

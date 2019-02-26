@@ -244,7 +244,6 @@ public class Distributor {
             if(network.firstStage[i][dc] > 0)//Only edges with positive flow
                 pc++;
         }
-        
         productionCenters = new int[pc];
         capacities = new int[pc];
         pc = 0;
@@ -339,16 +338,15 @@ public class Distributor {
     * Method that balances the first stage of a network after a distribution center had been closed
     *
     * @param pc
-    * @param quantity
     * @param network
     *
     * TODO: implement unit test
     */
-    public static void firstStageDistributionBalance(int pc,int quantity, TwoStageFlowNetwork network) {
+    public static void firstStageDistributionBalance(int pc, int closed,TwoStageFlowNetwork network) {
         int distributionCenters = 0;
 
         for (int j = 0 ; j < network.J ; j++) {
-            if(network.distributionInbound[j] > 0)
+            if(network.distributionInbound[j] >= 0 && j != closed)
                 distributionCenters++;
         }
 
@@ -356,14 +354,14 @@ public class Distributor {
         int[] capacities = new int[distributionCenters];
         distributionCenters = 0;
         for (int j = 0 ; j < network.J ; j++) {
-            if(network.distributionInbound[j] > 0) {
+            if(network.distributionInbound[j] >= 0 && j != closed) {
                 available[distributionCenters] = j;
                 capacities[distributionCenters] = network.totalDemand;
                 distributionCenters++;
             }
         }
 
-        int[] allocated = randomAllocationWithCapacities(capacities,quantity);
+        int[] allocated = randomAllocationWithCapacities(capacities,network.productionBalance[pc]);
 
         network.productionBalance[pc] = 0;
         for(int j = 0 ; j < allocated.length ; j++){
@@ -376,50 +374,35 @@ public class Distributor {
      * Method that balances the second stage of a network after a the balance of the first stage
      *
      * @param dc
-     * @param quantity
      * @param network
      *
      * TODO: I need to implement the method without using the randomEdge array and using the random allocation
      */
-    public static void secondStageDistributionBalance(int dc, int quantity, TwoStageFlowNetwork network) {
-        Vector<Integer> balanceQuantities = new Vector<>();
-        Vector<Integer> edges = new Vector<>();
+    public static void secondStageDistributionBalance(int dc,TwoStageFlowNetwork network) {
+        int customers = 0;
+
         for (int k = 0 ; k < network.K ; k++) {
-            if(network.customerBalance[k] > 0){
-                balanceQuantities.add(network.customerBalance[k]);
-                edges.add(k);
+            if(network.customerBalance[k] > 0)
+                customers++;
+        }
+
+        int[] available = new int[customers];
+        int[] customersBalance = new int[customers];
+        customers = 0;
+        for (int k = 0 ; k < network.K ; k++) {
+            if(network.customerBalance[k] > 0) {
+                available[customers] = k;
+                customersBalance[customers] = network.customerBalance[k];
+                customers++;
             }
         }
-        
-        int Q = quantity;
-        int randomQuantity;
-        int [] randomEdges = new int[edges.size()];
-        Random rand = new Random();
-        while(quantity != 0){
 
-            for (int i = 0; i < edges.size(); i++) {
-                randomEdges[i] = rand.nextInt(edges.size());
-            }
+        int[] allocated = randomAllocationWithCapacities(customersBalance,network.distributionInbound[dc]-network.distributionOutbound[dc]);
 
-            for (int e : randomEdges) {
-                randomQuantity = rand.nextInt((Q - 1) + 1) + 1;
-                randomQuantity = randomQuantity > quantity ? quantity : randomQuantity;
-                randomQuantity = randomQuantity > balanceQuantities.get(e) ? balanceQuantities.get(e) : randomQuantity; 
-
-                network.distributionOutbound[dc] += randomQuantity;
-                network.secondStage[dc][edges.get(e)] += randomQuantity;
-                network.customerBalance[edges.get(e)] -= randomQuantity;
-
-                balanceQuantities.set(e, balanceQuantities.get(e)-randomQuantity);
-                quantity -= randomQuantity;
-                if(balanceQuantities.get(e) == 0){
-                    balanceQuantities.del(e);
-                    edges.del(e);
-                    randomEdges = new int[edges.size()];
-                    break;
-                }
-                if(quantity == 0)break;
-            }
+        for(int k = 0 ; k < available.length ; k++){
+            network.secondStage[dc][available[k]] += allocated[k];
+            network.distributionOutbound[dc] += allocated[k];
+            network.customerBalance[available[k]] = 0;
         }
     }
     
