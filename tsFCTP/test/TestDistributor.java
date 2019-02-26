@@ -308,22 +308,44 @@ class TestDistributor {
 
             assertTrue(networks[i].testNetwork());
             int closed = 0;
+            int returned = 0;
             for (int j = 0 ; j < networks[i].J ; j++) {
                 if (networks[i].distributionInbound[j] > 0) {
                     closed = j;
+                    returned = networks[i].distributionInbound[j];
                     Distributor.closeDistributionCenter(j,networks[i]);
-                    assertEquals(0,networks[i].distributionInbound[j]);
-                    assertEquals(0,networks[i].distributionOutbound[j]);
                     break;
                 }
             }
+
+            int customerBalance = 0;
+            for (int balance : networks[i].customerBalance) {
+                customerBalance += balance;
+            }
+
+            assertEquals(customerBalance,returned);
+            assertEquals(0,networks[i].distributionInbound[closed]);
+            assertEquals(0,networks[i].distributionOutbound[closed]);
             assertTrue(!networks[i].testNetwork());
 
+            int productionBalance = 0;
+            int newInbound = 0;
             for (int j = 0 ; j < networks[i].I ; j++) {
-                if(networks[i].productionBalance[j] > 0)
-                    Distributor.firstStageDistributionBalance(j,closed,networks[i]);
+                if(networks[i].productionBalance[j] > 0) {
+                    productionBalance += networks[i].productionBalance[j];
+                    Distributor.firstStageDistributionBalance(j, closed, networks[i]);
+                }
                 assertEquals(0,networks[i].productionBalance[j]);
             }
+
+            for (int j = 0; j < networks[i].J; j++) {
+                newInbound += networks[i].distributionInbound[j] - networks[i].distributionOutbound[j];
+            }
+
+            assertEquals(productionBalance,customerBalance);
+            assertEquals(productionBalance,returned);
+            assertEquals(productionBalance,newInbound);
+            assertTrue(networks[i].productionBalance());
 
             System.out.println(" ok...");
         }
@@ -341,6 +363,7 @@ class TestDistributor {
             Distributor.secondStageInitialDistribution(networks[i]);
 
             assertTrue(networks[i].testNetwork());
+
             int closed = 0;
             for (int j = 0 ; j < networks[i].J ; j++) {
                 if (networks[i].distributionInbound[j] > 0) {
@@ -351,20 +374,35 @@ class TestDistributor {
                     break;
                 }
             }
-            assertTrue(!networks[i].testNetwork());
+
+            assertEquals(false,networks[i].testNetwork());
+            assertEquals(false,networks[i].customerBalance());
+            assertEquals(false,networks[i].productionBalance());
 
             for (int j = 0 ; j < networks[i].I ; j++) {
                 if(networks[i].productionBalance[j] > 0)
                     Distributor.firstStageDistributionBalance(j,closed,networks[i]);
-                assertEquals(0,networks[i].productionBalance[j]);
             }
 
-            assertNotEquals(true,networks[i].distributionBalance());
-            assertNotEquals(true,networks[i].customerBalance());
+            assertTrue(networks[i].productionBalance());
+            assertEquals(false,networks[i].distributionBalance());
+            assertEquals(false,networks[i].customerBalance());
 
+            int dcBalance = 0;
+            int demand = 0;
+            for (int j = 0; j < networks[i].J; j++) {
+                dcBalance += networks[i].distributionInbound[j] - networks[i].distributionOutbound[j];
+            }
+            for (int j = 0; j < networks[i].K; j++) {
+                demand += networks[i].customerBalance[j];
+            }
+
+            assertEquals(dcBalance,demand);
+            System.out.println(dcBalance+" - "+demand);
             for (int dc = 0 ; dc < networks[i].J ; dc++) {
-                if(networks[i].distributionInbound[dc] - networks[i].distributionOutbound[dc] > 0)
-                    Distributor.secondStageDistributionBalance( dc,networks[i]);
+                if(networks[i].distributionInbound[dc] > networks[i].distributionOutbound[dc]) {
+                    Distributor.secondStageDistributionBalance(dc, networks[i]);
+                }
             }
 
             assertTrue(networks[i].testNetwork());

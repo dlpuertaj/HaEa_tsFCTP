@@ -381,10 +381,14 @@ public class Distributor {
     public static void secondStageDistributionBalance(int dc,TwoStageFlowNetwork network) {
         int customers = 0;
 
-        for (int k = 0 ; k < network.K ; k++) {
-            if(network.customerBalance[k] > 0)
+
+        for (int balance : network.customerBalance) {
+            if(balance > 0)
                 customers++;
         }
+
+        if(customers == 0)
+            System.out.println("Customers... "+ customers);
 
         int[] available = new int[customers];
         int[] customersBalance = new int[customers];

@@ -13,7 +13,7 @@ public class TwoStageFlowNetwork {
     public int[] productionCapacity;
     public int[] productionBalance;
     public int[] quantityProduced; //TODO: not necessary
-    public int[] distributionInbound;
+    public int[] distributionInbound;//TODO: use only one array for the distribution balance
     public int[] distributionOutbound;
     public int[] distributionCapacity;// unlimited capacity = totalDemand
     public int[] customerDemand;
@@ -129,7 +129,7 @@ public class TwoStageFlowNetwork {
             for(int j = 0 ; j < J ; j++){
                 received += secondStage[j][k];
             }
-            if(received != customerDemand[k] || customerBalance[k] != 0)
+            if(received != customerDemand[k] && customerBalance[k] != 0)
                 return false;
             else
                 totalReceived += received;
@@ -139,6 +139,17 @@ public class TwoStageFlowNetwork {
 
     public boolean testNetwork(){
         return productionBalance() && distributionBalance() && customerBalance();
+    }
+
+    public void allocateInFirstStage(int source, int target,int quantity){
+        firstStage[source][target] += quantity;
+        productionBalance[source] -= quantity;
+        distributionInbound[target] += quantity;
+    }
+    public void allocateInSecondStage(int source, int target, int quantity){
+        secondStage[source][target] += quantity;
+        distributionOutbound[source] += quantity;
+        customerBalance[target] -= quantity;
     }
 
     @Override
@@ -167,8 +178,6 @@ public class TwoStageFlowNetwork {
         sb.append("Customer demand").append(Arrays.toString(customerDemand));
         sb.append(NEWLINE);
         sb.append("Customer balance").append(Arrays.toString(customerBalance));
-        sb.append(NEWLINE);
-        sb.append("Test: ").append(this.testNetwork());
         sb.append(NEWLINE);
         sb.append("------------");sb.append(NEWLINE);
         return sb.toString();
