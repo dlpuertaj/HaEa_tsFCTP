@@ -362,9 +362,9 @@ class TestDistributor {
             Distributor.firstStageInitialDistribution(networks[i]);
             Distributor.secondStageInitialDistribution(networks[i]);
 
-            assertTrue(networks[i].testNetwork());
+            assertTrue(networks[i].testNetwork());//Create network
 
-            int closed = 0;
+            int closed = 0;//The first dc found with positive inbound is closed
             for (int j = 0 ; j < networks[i].J ; j++) {
                 if (networks[i].distributionInbound[j] > 0) {
                     closed = j;
@@ -384,10 +384,6 @@ class TestDistributor {
                     Distributor.firstStageDistributionBalance(j,closed,networks[i]);
             }
 
-            assertTrue(networks[i].productionBalance());
-            assertEquals(false,networks[i].distributionBalance());
-            assertEquals(false,networks[i].customerBalance());
-
             int dcBalance = 0;
             int demand = 0;
             for (int j = 0; j < networks[i].J; j++) {
@@ -398,7 +394,13 @@ class TestDistributor {
             }
 
             assertEquals(dcBalance,demand);
-            System.out.println(dcBalance+" - "+demand);
+            System.out.println("\n"+dcBalance+" - "+demand);
+
+            assertTrue(networks[i].productionBalance());
+            assertEquals(false,networks[i].distributionBalance());
+            assertEquals(false,networks[i].customerBalance());
+
+
             for (int dc = 0 ; dc < networks[i].J ; dc++) {
                 if(networks[i].distributionInbound[dc] > networks[i].distributionOutbound[dc]) {
                     Distributor.secondStageDistributionBalance(dc, networks[i]);
