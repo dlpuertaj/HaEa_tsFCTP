@@ -1,11 +1,12 @@
 import static org.junit.jupiter.api.Assertions.*;
 
-import dlpuertaj.optimization.TwoStageNetworkSpace;
+import dlpuertaj.optimization.domain.TwoStageNetworkSpace;
 import dlpuertaj.optimization.domain.TwoStageFlowNetwork;
 import dlpuertaj.optimization.domain.tsFCTP;
 import dlpuertaj.optimization.utils.Distributor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import unalcol.random.util.RandBool;
 
 import java.util.Arrays;
 
@@ -412,6 +413,83 @@ class TestDistributor {
         }
     }
 
+    @Test
+    void testRandomAllocationFromProductionCenter(){
+        System.out.println("Testing randomAllocationFromProductionCenter method...");
+
+        for(int i = 0 ; i < INSTANCES.length ; i++) {
+            System.out.print("Testig with instance: " + INSTANCES[i]);
+
+            Distributor.startProduction(networks[i]);
+            Distributor.firstStageInitialDistribution(networks[i]);
+            Distributor.secondStageInitialDistribution(networks[i]);
+
+            int productionCenter = 0;
+            //int[] inboundBefore = networks[i].distributionInbound.clone();
+
+            for (int pc = 0 ; pc < networks[i].I ; pc++) {
+                if (networks[i].getQuantityProduced()[pc] > 0 && networks[i].productionBalance[pc] == 0) {
+                    productionCenter = pc;
+                    networks[i].closeProductionCenter(pc);// close production center
+                    assertTrue(networks[i].productionBalance[pc] > 0);
+                    assertFalse(networks[i].distributionBalance());
+                    break;
+                }
+            }
+            //int[] inboundAfter = networks[i].distributionInbound.clone();
+            //It is possible that it allocates to the same distribution centers
+            Distributor.randomAllocationFromProductionCenter(productionCenter,networks[i]);
+
+            //inboundAfter = networks[i].distributionInbound.clone();
+            assertEquals(0,networks[i].productionBalance[productionCenter]);
+            assertTrue(networks[i].productionBalance());
+            //assertFalse(networks[i].distributionBalance());
+            //assertEquals(false,Arrays.equals(inboundBefore,inboundAfter));
+            System.out.println(" ok...");
+        }
+    }
+
+    @Test
+    void testProductionMutationBalance(){
+
+        System.out.println("Testing randomAllocationFromProductionCenter method...");
+
+        for(int i = 0 ; i < INSTANCES.length ; i++) {
+            System.out.print("Testing with instance: " + INSTANCES[i]);
+
+            Distributor.startProduction(networks[i]);
+            Distributor.firstStageInitialDistribution(networks[i]);
+            Distributor.secondStageInitialDistribution(networks[i]);
+
+            int distributionCenter = -1;
+
+            for (int j = 0; j < networks[i].J; j++) {
+                if(networks[i].distributionInbound[i] > 0){
+                    networks[i].distributionInbound[j] += 50;
+                    distributionCenter = j;
+                    break;
+                }
+            }
+
+            if(distributionCenter == -1){
+                System.out.println("Network did not change...");
+            }else{
+                Distributor.returnToUnbalancedDistributionCenters(networks[i]);
+            }
+
+            /**TODO (?) what about if I don't return all the product to the unbalanced distribution centers*/
+            for (int j = 0 ; j < networks[i].J ; j++) {
+                if(networks[i].distributionInbound[j] != networks[i].distributionOutbound[j]){
+                    Distributor.secondStageDistributionBalance(j,networks[i]);
+                }
+            }
+
+            assertTrue(networks[i].testNetwork());
+
+            System.out.println(" ok...");
+        }
+
+    }
     boolean comparePlan(int[][] p1, int[][] p2){
 	    for(int i = 0 ; i < p1.length ; i++){
 	        if(!Arrays.equals(p1[i],p2[i]))

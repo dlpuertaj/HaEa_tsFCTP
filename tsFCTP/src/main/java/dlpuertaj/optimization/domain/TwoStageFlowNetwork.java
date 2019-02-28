@@ -74,6 +74,7 @@ public class TwoStageFlowNetwork {
         }
     }
 
+
     /**
      * Method that test the production of the network. It test the production balance and
      * the production capacity
@@ -150,6 +151,24 @@ public class TwoStageFlowNetwork {
         secondStage[source][target] += quantity;
         distributionOutbound[source] += quantity;
         customerBalance[target] -= quantity;
+    }
+
+    public int[] getQuantityProduced(){
+        int[] produced = new int[I];
+        for (int i = 0 ; i < I ; i++) {
+            for (int j = 0; j < J; j++) {
+                produced[i] += firstStage[i][j];
+            }
+        }
+        return produced;
+    }
+
+    public void closeProductionCenter(int productionCenter){
+        for (int j = 0 ; j < J ; j++) {
+            distributionInbound[j] -= firstStage[productionCenter][j];
+            productionBalance[productionCenter] += firstStage[productionCenter][j];
+            firstStage[productionCenter][j] = 0;
+        }
     }
 
     @Override
