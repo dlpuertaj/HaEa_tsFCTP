@@ -38,7 +38,6 @@ public class TestTwoStageNetworkSpace {
 
             assertNotNull(space[i]);
 
-            System.out.println();
             for(int j = 0 ; j < 50 ; j++){
                 TwoStageFlowNetwork network = space[i].pick();
                 assertTrue(network.testNetwork());
