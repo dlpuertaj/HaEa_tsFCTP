@@ -15,6 +15,7 @@ public class Distributor {
      * It can allocate a quantity greater than or lesser than the total capacity
 	 * @param capacities
 	 * @param quantity
+     * @return random allocation
 	 * */
 	public static int[] randomAllocationWithCapacities(int[] capacities,int quantity) {
         
@@ -375,8 +376,6 @@ public class Distributor {
      *
      * @param dc
      * @param network
-     *
-     * TODO: I need to implement the method without using the randomEdge array and using the random allocation
      */
     public static void secondStageDistributionBalance(int dc,TwoStageFlowNetwork network) {
         int customers = 0;
@@ -406,52 +405,45 @@ public class Distributor {
     }
     
    /**
-    *TODO: I need to use the random allocation algorithms instead of this method
+    * Method that allocates random quantities to random distribution centers from one production center
+    * @param pc
+    * @param network;
     */    
-    public static void randomPlantTransportation(int plant, int quantity, TwoStageFlowNetwork network) {
-        int[] edges = new int[network.J];
-        for (int j = 0 ; j < network.J ; j++) {
-            network.distributionInbound[j] -= network.firstStage[plant][j];
-            network.productionBalance[plant] += network.firstStage[plant][j];
-            network.firstStage[plant][j] = 0;
-            edges[j] = j;
+    public static void randomAllocationFromProductionCenter(int pc,TwoStageFlowNetwork network) {
+        int[] capacities = new int[network.J];
+
+        for (int i = 0; i < network.J; i++) {
+            capacities[i] = network.totalDemand;
         }
-        
-        int Q = quantity;
-        int randomQuantity;
-        int [] randomEdges = new int[edges.length];
-        Random rand = new Random();
-        while(quantity != 0){
-        	
-            //UniformIntegerGenerator edgeSelector = new UniformIntegerGenerator(edges.size());
-            //randomEdges = edgeSelector.generate(edges.size());
-            for (int i = 0; i < edges.length; i++) {
-                randomEdges[i] = rand.nextInt(edges.length);
-            }
-            if(edges.length == 1){
-                network.productionBalance[plant] -= quantity;
-                network.firstStage[plant][edges[0]] += quantity;
-                network.distributionInbound[edges[0]] += quantity;
-                quantity = 0;
-            }else{
-                for (int e : randomEdges) {
-                    randomQuantity = rand.nextInt((Q - 1) + 1) + 1;
-                    randomQuantity = randomQuantity > quantity ? quantity : randomQuantity;
 
-                    network.productionBalance[plant] -= randomQuantity;
-                    network.firstStage[plant][edges[e]] += randomQuantity;
-                    network.distributionInbound[edges[e]] += randomQuantity;
+        //TODO: first I need to return the product to de production center
+        int [] allocated = randomAllocationWithCapacities(capacities,network.productionBalance[pc]);
 
-                    quantity -= randomQuantity;
-                    if(quantity == 0)break;
+        for (int j = 0; j < network.J; j++) {
+            network.firstStage[pc][j] = allocated[j];
+            network.distributionInbound[j] += allocated[j];
+        }
+        network.productionBalance[pc] = 0;
+    }
+
+    /***
+     *
+     *
+     */
+    public static void returnToUnbalancedDistributionCenters(TwoStageFlowNetwork network) {
+        for (int j = 0 ; j < network.J ; j++) {
+            if(network.distributionInbound[j] != network.distributionOutbound[j]){
+                for (int k = 0 ; k < network.K ; k++) {
+                    network.customerBalance[k] += network.secondStage[j][k];
+                    network.distributionOutbound[j] -= network.secondStage[j][k];
+                    network.secondStage[j][k] = 0;
                 }
             }
         }
     }
     
-    
     /*
-    *
+    * TODO: use the random allocation algorithm or the second stage distribution balance algorithm
     */ 
     public static void productionMutationBalance(int dc, int quantity, TwoStageFlowNetwork network) {
         int[] balanceQuantities;
@@ -769,4 +761,5 @@ public class Distributor {
         }
         
     }
+
 }

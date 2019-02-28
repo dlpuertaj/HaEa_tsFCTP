@@ -1,10 +1,8 @@
-import dlpuertaj.optimization.TwoStageNetworkSpace;
+import dlpuertaj.optimization.domain.TwoStageNetworkSpace;
 import dlpuertaj.optimization.domain.TwoStageFlowNetwork;
 import dlpuertaj.optimization.domain.tsFCTP;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
