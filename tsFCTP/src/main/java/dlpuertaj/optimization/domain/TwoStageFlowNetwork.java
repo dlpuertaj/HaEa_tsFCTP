@@ -13,7 +13,8 @@ public class TwoStageFlowNetwork {
     public int[] productionCapacity;
     public int[] productionBalance;
     public int[] quantityProduced; //TODO: not necessary
-    public int[] distributionInbound;//TODO: use only one array for the distribution balance
+    /**TODO: use only one array for the distribution balance. this and the unlimited capacity are enough to find inbound and outbound*/
+    public int[] distributionInbound;
     public int[] distributionOutbound;
     public int[] distributionCapacity;// unlimited capacity = totalDemand
     public int[] customerDemand;
@@ -150,6 +151,16 @@ public class TwoStageFlowNetwork {
         secondStage[source][target] += quantity;
         distributionOutbound[source] += quantity;
         customerBalance[target] -= quantity;
+    }
+
+    public int[] getDistributionBalance(){
+        int[] balance = new int[J];
+        for (int j = 0; j < J; j++) {
+            balance[j] = distributionInbound[j] - distributionOutbound[j];
+
+        }
+
+        return balance;
     }
 
     @Override

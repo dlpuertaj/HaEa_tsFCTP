@@ -375,31 +375,35 @@ class TestDistributor {
                 }
             }
 
-            assertEquals(false,networks[i].testNetwork());
             assertEquals(false,networks[i].customerBalance());
             assertEquals(false,networks[i].productionBalance());
+
+            int dcBalance = 0;
+            int demand = 0;
+            int production = 0;
+
+            for (int j = 0; j < networks[i].K; j++) {
+                demand += networks[i].customerBalance[j];
+            }
+            for (int j = 0; j < networks[i].I; j++) {
+                production += networks[i].productionBalance[j];
+            }
+
+            assertEquals(production,demand);// customer balance and production balance must be equal
 
             for (int j = 0 ; j < networks[i].I ; j++) {
                 if(networks[i].productionBalance[j] > 0)
                     Distributor.firstStageDistributionBalance(j,closed,networks[i]);
             }
 
-            int dcBalance = 0;
-            int demand = 0;
             for (int j = 0; j < networks[i].J; j++) {
                 dcBalance += networks[i].distributionInbound[j] - networks[i].distributionOutbound[j];
             }
-            for (int j = 0; j < networks[i].K; j++) {
-                demand += networks[i].customerBalance[j];
-            }
-
             assertEquals(dcBalance,demand);
-            System.out.println("\n"+dcBalance+" - "+demand);
 
             assertTrue(networks[i].productionBalance());
             assertEquals(false,networks[i].distributionBalance());
             assertEquals(false,networks[i].customerBalance());
-
 
             for (int dc = 0 ; dc < networks[i].J ; dc++) {
                 if(networks[i].distributionInbound[dc] > networks[i].distributionOutbound[dc]) {

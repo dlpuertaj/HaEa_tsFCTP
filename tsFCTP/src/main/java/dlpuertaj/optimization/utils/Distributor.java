@@ -380,15 +380,10 @@ public class Distributor {
      */
     public static void secondStageDistributionBalance(int dc,TwoStageFlowNetwork network) {
         int customers = 0;
-
-
         for (int balance : network.customerBalance) {
             if(balance > 0)
                 customers++;
         }
-
-        if(customers == 0)
-            System.out.println("Customers... "+ customers);
 
         int[] available = new int[customers];
         int[] customersBalance = new int[customers];
@@ -406,7 +401,7 @@ public class Distributor {
         for(int k = 0 ; k < available.length ; k++){
             network.secondStage[dc][available[k]] += allocated[k];
             network.distributionOutbound[dc] += allocated[k];
-            network.customerBalance[available[k]] = 0;
+            network.customerBalance[available[k]] -= allocated[k];
         }
     }
     
