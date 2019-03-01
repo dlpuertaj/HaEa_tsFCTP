@@ -162,14 +162,6 @@ public class TwoStageFlowNetwork {
         return produced;
     }
 
-    public void closeProductionCenter(int productionCenter){
-        for (int j = 0 ; j < J ; j++) {
-            distributionInbound[j] -= firstStage[productionCenter][j];
-            productionBalance[productionCenter] += firstStage[productionCenter][j];
-            firstStage[productionCenter][j] = 0;
-        }
-    }
-
     public int[] getDistributionBalance(){
         int[] balance = new int[J];
         for (int j = 0; j < J; j++) {

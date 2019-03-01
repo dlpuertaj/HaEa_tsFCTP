@@ -253,8 +253,7 @@ class TestDistributor {
         }
     }
 
-    @Test
-        //TODO: This test fails some times...
+    @Test//TODO: This test fails some times...
     void testFirstStageXOverBalance() {
         System.out.println("Testing firstStageXOverBalance method...");
 
@@ -438,7 +437,7 @@ class TestDistributor {
             for (int pc = 0; pc < networks[i].I; pc++) {
                 if (networks[i].getQuantityProduced()[pc] > 0 && networks[i].productionBalance[pc] == 0) {
                     productionCenter = pc;
-                    networks[i].closeProductionCenter(pc);// close production center
+                    Distributor.closeProductionCenter(pc,networks[i]);// close production center
                     assertTrue(networks[i].productionBalance[pc] > 0);
                     assertFalse(networks[i].distributionBalance());
                     break;

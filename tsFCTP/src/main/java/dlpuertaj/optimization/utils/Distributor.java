@@ -6,8 +6,6 @@ import unalcol.types.collection.vector.Vector;
 import java.util.Arrays;
 import java.util.Random;
 
-
-
 public class Distributor {
     
 	/**
@@ -427,8 +425,8 @@ public class Distributor {
     }
 
     /***
-     *
-     *
+     * Method that return product from customers tu distribution centers that are unbalanced
+     * @param network
      */
     public static void returnToUnbalancedDistributionCenters(TwoStageFlowNetwork network) {
         for (int j = 0 ; j < network.J ; j++) {
@@ -441,77 +439,17 @@ public class Distributor {
             }
         }
     }
-    
-    /*
-    * TODO: use the random allocation algorithm or the second stage distribution balance algorithm
-    */ 
-    public static void productionMutationBalance(int dc, int quantity, TwoStageFlowNetwork network) {
-        int[] balanceQuantities;
-        int bQuantities = 0;
-        int[] edges;
-        int e = 0;
-        
-        for (int k = 0 ; k < network.K ; k++) {
-            if(network.customerBalance[k] > 0){
-                bQuantities++;
-                e++;
-            }
-        }
-        balanceQuantities = new int[bQuantities];
-        bQuantities = 0;
-        edges = new int[e];
-        e = 0;
-        for (int k = 0 ; k < network.K ; k++) {
-            if(network.customerBalance[k] > 0){
-                balanceQuantities[bQuantities] = network.customerBalance[k];
-                bQuantities++;
-                edges[e] = k;
-                e++;
-            }
-        }
-        
-        int Q = quantity;
-        int randomQuantity;
-        int [] randomEdges = new int[edges.length];
-        Random rand = new Random();
-        while(quantity != 0){
 
-            for (int i = 0; i < edges.length; i++) {
-                randomEdges[i] = rand.nextInt(edges.length);
-            }
-            
-            for (int re : randomEdges) {
-                randomQuantity = rand.nextInt((Q - 1) + 1) + 1;
-                randomQuantity = randomQuantity > quantity ? quantity : randomQuantity;
-                randomQuantity = randomQuantity > balanceQuantities[re] ? balanceQuantities[re] : randomQuantity; 
-
-                network.distributionOutbound[dc] += randomQuantity;
-                network.secondStage[dc][edges[re]] += randomQuantity;
-                network.customerBalance[edges[re]] -= randomQuantity;
-
-                balanceQuantities[re] -= randomQuantity;
-                quantity -= randomQuantity;
-                if(balanceQuantities[re] == 0){
-                	bQuantities--;
-                	e--;
-                	edges = new int[e];
-                    balanceQuantities = new int[bQuantities];
-                    bQuantities = 0;
-                    e = 0;
-                    for (int k = 0 ; k < network.K ; k++) {
-                        if(network.customerBalance[k] > 0){
-                            balanceQuantities[bQuantities] = network.customerBalance[k];
-                            bQuantities++;
-                            edges[e] = k;
-                            e++;
-                        }
-                    }
-                    
-                    randomEdges = new int[edges.length];
-                    break;
-                }
-                if(quantity == 0)break;
-            }
+    /**
+     * Method that closes a production center returning all the product from distribution centers
+     * @param productionCenter
+     * @param network
+     * */
+    public static void closeProductionCenter(int productionCenter,TwoStageFlowNetwork network){
+        for (int j = 0 ; j < network.J ; j++) {
+            network.distributionInbound[j] -= network.firstStage[productionCenter][j];
+            network.productionBalance[productionCenter] += network.firstStage[productionCenter][j];
+            network.firstStage[productionCenter][j] = 0;
         }
     }
     
@@ -654,112 +592,111 @@ public class Distributor {
     /*
     *
     */ 
-    public static void VogelsApproximation(int[][] costMatrix, TwoStageFlowNetwork network){
-        
-		
+    public static void VogelsApproximation(int[][] costMatrix, TwoStageFlowNetwork network) {
+
+
         int quantity;
         int[] supply;
         int[] demand;
         int[] supplyPenalties;
         int[] demandPenalties;
 
-        if(costMatrix.length == network.I && costMatrix[0].length == network.J){
-                    
+        if (costMatrix.length == network.I && costMatrix[0].length == network.J) {
+
             supply = network.quantityProduced.clone();
             demand = network.distributionCapacity.clone();
 
-        }else{
+        } else {
             supply = network.distributionInbound.clone();
             demand = network.customerDemand.clone();
         }
-        
-        int count = 0;    
+
+        int count = 0;
         int row;
         int col;
-        
+
         Vector<int[]> penalties;
-        while(count != network.totalDemand){
-            
+        while (count != network.totalDemand) {
+
             penalties = findSupplyPenalties(costMatrix, supply, demand);
-        
+
             supplyPenalties = penalties.get(0);
             demandPenalties = penalties.get(1);
             row = 0;
             int maxPenalty = supplyPenalties[0];
             for (int j = 1; j < supplyPenalties.length; j++) {//Max penalty of supplies
-                if(supplyPenalties[j] > maxPenalty){
+                if (supplyPenalties[j] > maxPenalty) {
                     maxPenalty = supplyPenalties[j];
                     row = j;
                 }
             }
-            
+
             col = 0;
             maxPenalty = demandPenalties[0];
             for (int j = 1; j < demandPenalties.length; j++) {//Max penalty of supplies
-                if(demandPenalties[j] > maxPenalty){
+                if (demandPenalties[j] > maxPenalty) {
                     maxPenalty = demandPenalties[j];
                     col = j;
                 }
             }
-            
+
             boolean choice = false;
             //Tie break 2;
-            if(supplyPenalties[row] == demandPenalties[col]){
-                if(costMatrix.length != network.I){
-                    if(supply[row] > demand[col])
+            if (supplyPenalties[row] == demandPenalties[col]) {
+                if (costMatrix.length != network.I) {
+                    if (supply[row] > demand[col])
                         choice = true;
-                }   
-            }else if(supplyPenalties[row] > demandPenalties[col])
+                }
+            } else if (supplyPenalties[row] > demandPenalties[col])
                 choice = true;
-            
+
             int minimumCost;
-            
+
             //Find minimum cost
-            if(choice){
+            if (choice) {
                 col = 0;
-                minimumCost = Integer.MAX_VALUE; 
+                minimumCost = Integer.MAX_VALUE;
                 for (int j = 0; j < costMatrix[row].length; j++) {
-                    if(costMatrix[row][j] <= minimumCost && demand[j] != 0){
+                    if (costMatrix[row][j] <= minimumCost && demand[j] != 0) {
                         minimumCost = costMatrix[row][j];
                         col = j;
                     }
                 }
-            }else{
+            } else {
                 row = 0;
-                minimumCost = Integer.MAX_VALUE; 
+                minimumCost = Integer.MAX_VALUE;
                 for (int j = 0; j < costMatrix.length; j++) {
-                    if(costMatrix[j][col] < minimumCost && supply[j] != 0){
+                    if (costMatrix[j][col] < minimumCost && supply[j] != 0) {
                         minimumCost = costMatrix[j][col];
                         row = j;
                     }
                 }
-                
+
             }
-            
+
             //Send product
-            if(demand[col] > supply[row]){
+            if (demand[col] > supply[row]) {
                 quantity = supply[row];
                 supply[row] -= quantity;
                 demand[col] -= quantity;
-            }else{
+            } else {
                 quantity = demand[col];
                 supply[row] -= quantity;
                 demand[col] -= quantity;
             }
 
-            if(costMatrix.length == network.I && costMatrix[0].length == network.J){
-            	network.firstStage[row][col] +=  quantity;
-            	network.distributionInbound[col] += quantity;
-            }else{
-            	network.secondStage[row][col] +=  quantity;
-            	network.distributionOutbound[row] += quantity;
-            	network.customerBalance[col] -= quantity;
+            if (costMatrix.length == network.I && costMatrix[0].length == network.J) {
+                network.firstStage[row][col] += quantity;
+                network.distributionInbound[col] += quantity;
+            } else {
+                network.secondStage[row][col] += quantity;
+                network.distributionOutbound[row] += quantity;
+                network.customerBalance[col] -= quantity;
             }
-                       
-            count += quantity;
-            
-        }
-        
-    }
 
+            count += quantity;
+
+        }
+    }
+        
 }

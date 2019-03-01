@@ -47,28 +47,17 @@ public class NetworkProductionMutation implements Variation_1_1<TwoStageFlowNetw
         for (int i = 0 ; i < child.I ; i++) {
             if (gb.next() && (child.getQuantityProduced()[i] > 0 && child.productionBalance[i] == 0)) {
 
-                //TODO: close production center
+                Distributor.closeProductionCenter(i,child);
+
                 Distributor.randomAllocationFromProductionCenter(i,child);
 
-                //TODO: use method from Distributor
-                for (int j = 0 ; j < child.J ; j++) {
-                    if(child.distributionInbound[j] != child.distributionOutbound[j]){
-                        for (int k = 0 ; k < child.K ; k++) {
-                               child.customerBalance[k] += child.secondStage[j][k];
-                               child.distributionOutbound[j] -= child.secondStage[j][k];
-                               child.secondStage[j][k] = 0;
-                        }
-                    }
-                }
+                Distributor.returnToUnbalancedDistributionCenters(child);
 
                 for (int j = 0 ; j < child.J ; j++) {
                     if(child.distributionInbound[j] != child.distributionOutbound[j]){
-	                Distributor.productionMutationBalance(j    ,
-                                                              child.distributionInbound[j],
-                                                              child);
+	                Distributor.secondStageDistributionBalance(j, child);
                     }
                 }
-
                 break;
             }
         }
