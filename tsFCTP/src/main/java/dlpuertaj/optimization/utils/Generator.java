@@ -1,8 +1,61 @@
 package dlpuertaj.optimization.utils;
 
+import dlpuertaj.optimization.domain.tsFCTP;
+
+import unalcol.random.integer.IntUniform;
+
+import java.util.Arrays;
+import java.util.Random;
+
 public class Generator {
     //TODO: Methdod that creates a tsFCTP instances generating the number od facilities based on a percentage
     //TODO: Method that generates fixed costs and random costs based on 2018 paper given the size of the problem
+    //TODO: Search how supply chain facilities are distributed and how are distributed considering customers
+
+    /***/
+    public tsFCTP generateInstance(int plants, int distributors, int customers){
+        tsFCTP instance = null;
+        int[][] productionPoints = generatePoints(plants);
+        int[][] distributionPoints = generatePoints(distributors);
+        int[][] customerPoints = generatePoints(customers);
+
+        //TODO: evaluate if two facilities (also of the same type) are in the same point
+
+
+        return instance;
+    }
+
+    /***/
+    public int[][] generatePoints(int numberOfPoints){
+
+        int[][] points = new int[numberOfPoints][2];
+
+        int x,y;
+
+        IntUniform rand = new IntUniform(-400,400);
+
+        for (int i = 0; i < numberOfPoints; i++) {
+            x = rand.next();
+            y = rand.next();
+            points[i] = new int[]{x, y};
+        }
+        return points;
+    }
+
+    /***/
+    public int[][] generateFixedCosts(int[][] source, int[][]target){
+        return null;
+    }
+
+    /***/
+    public int[][] generateUnitVariableCosts(int[][] source, int[][]target){
+        return null;
+    }
+
+    /***/
+    public boolean validatePoints(int[] p1, int[] p2){
+        return Arrays.equals(p1,p2);
+    }
 
     /**
      *  I*J*K global supply global demand
