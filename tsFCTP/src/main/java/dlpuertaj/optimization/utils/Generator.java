@@ -42,13 +42,26 @@ public class Generator {
         return points;
     }
 
-    /***/
-    public int[][] generateFixedCosts(int[][] source, int[][]target){
+    /**
+     * The fixed costs f_ij and g_jk are computed as b_ij X r_f and c_jk X r_g, respectively, where r_f
+     * is randomly chosen as an integer in the interval [10,15] and r_g is randomly chosen as an integer in the interval
+     * [5,10].
+     * */
+    public int[][] generateFixedCosts(int[][] unitVariableCosts){
         return null;
     }
 
-    /***/
+    /**Unit variable costs are equal to [dist(plant I, depot J)] (similarly, [dist(depot J, customer K)])
+     * where dist(a, b) indicates the Euclidean distance between a and b, and  [·]  denotes the floor function
+     * i.e. [x] is the largest integer not greater than x*/
     public int[][] generateUnitVariableCosts(int[][] source, int[][]target){
+
+        int[][] unitTransportCosts = new int[source.length][target.length];
+        for (int s = 0; s < source.length; s++) {
+            for (int t = 0; t < target.length; t++) {
+                unitTransportCosts[s][t] = (int) Math.floor(Util.euclideanDistance(source[s],target[t]));
+            }
+        }
         return null;
     }
 
@@ -82,16 +95,6 @@ public class Generator {
 
     /**plants and depots have been randomly generated in the [−400, 400] × [−400, 400] square according to
      * a discrete uniform distribution*/
-
-    /**Unit variable costs are equal to [dist(plant I, depot J)] (similarly, [dist(depot J, customer K)])
-     * where dist(a, b) indicates the Euclidean distance between a and b, and  [·]  denotes the floor function
-     * i.e. [x] is the largest integer not greater than x*/
-
-    /**
-     * The fixed costs f_ij and g_jk are computed as b_ij X r_f and c_jk X r_g, respectively, where r_f
-     * is randomly chosen as an integer in the interval [10,15] and r_g is randomly chosen as an integer in the interval
-     * [5,10].
-     * */
 
     /**
      * Plant supply is 80 in all the plants. Customer demand is randomly selected as an integer in the
