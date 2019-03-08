@@ -1,4 +1,4 @@
-package dlpuertaj.optimization.utils;
+package dlpuertaj.optimization;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

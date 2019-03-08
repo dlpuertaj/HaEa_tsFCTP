@@ -8,4 +8,11 @@ public class Util {
 
         return Math.sqrt(xx + yy);
     }
+    public static int addArrayContent(int[] array){
+        int sum = 0;
+        for (int i = 0; i < array.length; i++) {
+            sum += array[i];
+        }
+        return sum;
+    }
 }

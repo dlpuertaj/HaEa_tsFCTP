@@ -26,7 +26,24 @@ public class tsFCTP {
 	public int[][] secondStageTransportCost;
 	public int[][] secondStageFixedCost;
 	
-	
+	public tsFCTP(int I, int J, int K){
+		this.I = I;
+		this.J = J;
+		this.K = K;
+
+		this.totalDemand = 0;
+		this.totalProductionCapacity = 0;
+
+		this.productionCapacity = new int[I];
+		this.distributionCapacity = new int[J];
+		this.customerDemand = new int[K];
+
+		this.firstStageTransportCost = new int[I][J];
+		this.secondStageTransportCost = new int[J][K];
+
+		this.firstStageFixedCost = new int[I][J];
+		this.secondStageFixedCost = new int[J][K];
+	}
 	public tsFCTP(String instance) {
 		String[] inst = instance.split("");
 		
@@ -151,6 +168,14 @@ public class tsFCTP {
     public void setFixedCostS2(int[][] fixedCostS2) {
         this.secondStageFixedCost = fixedCostS2;
     }
+
+	public void setProductionCapacity(int[] productionCapacity) {
+		this.productionCapacity = productionCapacity;
+	}
+
+	public void setCustomerDemand(int[] customerDemand) {
+		this.customerDemand = customerDemand;
+	}
 
 	public void showProblemInstance(){
 		

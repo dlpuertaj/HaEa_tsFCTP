@@ -1,4 +1,4 @@
-package dlpuertaj.optimization.utils;/*
+package dlpuertaj.optimization;/*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
