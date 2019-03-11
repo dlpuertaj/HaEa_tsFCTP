@@ -66,10 +66,10 @@ public class tsFCTP {
 		
 		build(instance);
 	}
-	
+
+	//TODO: move this method to Util or Generator
 	public void build(String instance){
-		
-		
+
 		File file = new File("Instances/"+instance+"/"+instance+".txt");
 		
 		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
@@ -114,7 +114,6 @@ public class tsFCTP {
 		    	this.productionCapacity[i] = Integer.valueOf(br.readLine());
 		    	this.totalProductionCapacity += this.productionCapacity[i];
             }
-            //System.out.println("Production capacity= " + Arrays.toString(productionCapacity) + " total production capacity= "+totalProductionCapacity);
 
             // System.out.println("Reading demand of customers and calculating total demand...");
 		    for (int k = 0; k < K; k++) {
@@ -127,9 +126,7 @@ public class tsFCTP {
             for (int j = 0; j < J; j++) {
                 this.distributionCapacity[j] = totalProductionCapacity;
             }
-		    br.close();
-		    //System.out.println("Distribution capacity= " + Arrays.toString(distributionCapacity));
-		    
+
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
