@@ -3,6 +3,10 @@ package dlpuertaj.optimization.utils;
 import dlpuertaj.optimization.domain.TwoStageFlowNetwork;
 import dlpuertaj.optimization.domain.tsFCTP;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+
 public class Util {
 
     /***/
@@ -33,9 +37,88 @@ public class Util {
      * production capacity
      * demand of customers
      * https://www.journaldev.com/878/java-write-to-file
+     * https://www.mkyong.com/java/how-to-write-to-file-in-java-bufferedwriter-example/
      * */
-    public void exportInstanceToTextFile(tsFCTP instance){
+    public static void exportInstanceToTextFile(tsFCTP instance){
 
+        BufferedWriter bw = null;
+        FileWriter fw = null;
+        StringBuilder sb = new StringBuilder();
+        String NEWLINE = System.getProperty(Constants.STRING_BUILDER_NEW_LINE);
+
+        String filename = Constants.NEW_INSTANCE_FILE_PATH+instance.I+""+instance.J+""+instance.K+Constants.TXT;
+        try {
+
+            sb.append(instance.I);
+            sb.append(NEWLINE);
+            sb.append(instance.J);
+            sb.append(NEWLINE);
+            sb.append(instance.K);
+            sb.append(NEWLINE);
+
+            for (int i = 0; i < instance.I; i++) {
+                for (int j = 0; j < instance.J; j++) {
+                    sb.append(instance.firstStageTransportCost[i][j]);
+                    sb.append(NEWLINE);
+                }
+            }
+            for (int i = 0; i < instance.I; i++) {
+                for (int j = 0; j < instance.J; j++) {
+                    sb.append(instance.firstStageFixedCost[i][j]);
+                    sb.append(NEWLINE);
+                }
+            }
+
+
+            for (int j = 0; j < instance.J; j++) {
+                for (int k = 0; k < instance.K; k++) {
+                    sb.append(instance.secondStageTransportCost[j][k]);
+                    sb.append(NEWLINE);
+                }
+            }
+            for (int j = 0; j < instance.J; j++) {
+                for (int k = 0; k < instance.K; k++) {
+                    sb.append(instance.secondStageFixedCost[j][k]);
+                    sb.append(NEWLINE);
+                }
+            }
+
+            for (int i = 0; i < instance.I; i++) {
+                sb.append(instance.productionCapacity[i]);
+                sb.append(NEWLINE);
+            }
+
+            for (int k = 0; k < instance.K; k++) {
+                sb.append(instance.customerDemand[k]);
+                sb.append(NEWLINE);
+            }
+
+            fw = new FileWriter(filename);
+            bw = new BufferedWriter(fw);
+            bw.write(sb.toString());
+
+            System.out.println("Done");
+
+        } catch (IOException e) {
+
+            e.printStackTrace();
+
+        } finally {
+
+            try {
+
+                if (bw != null)
+                    bw.close();
+
+                if (fw != null)
+                    fw.close();
+
+            } catch (IOException ex) {
+
+                ex.printStackTrace();
+
+            }
+        }
     }
 
     /** This method creates a text file with the network properties and transported product

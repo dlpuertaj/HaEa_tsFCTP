@@ -10,4 +10,7 @@ public class Constants {
     public static final int FIXED_COST_LOWER_BOUND_SECOND_STAGE = 5;
     public static final int FIXED_COST_UPPER_BOUND_FIRST_STAGE = 15;
     public static final int FIXED_COST_UPPER_BOUND_SECOND_STAGE = 10;
+    public static final String TXT = ".txt";
+    public static final String NEW_INSTANCE_FILE_PATH = "created_instances\\";
+    public static final String STRING_BUILDER_NEW_LINE = "line.separator";
 }
