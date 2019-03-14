@@ -19,9 +19,9 @@ public class Generator {
         int[][] customerPoints = generatePoints(customers);
 
         //TODO: unit test of points validations
-        validatePoints(productionPoints,distributionPoints);
-        validatePoints(productionPoints,customerPoints);
-        validatePoints(distributionPoints,customerPoints);
+        Util.validatePoints(productionPoints,distributionPoints);
+        Util.validatePoints(productionPoints,customerPoints);
+        Util.validatePoints(distributionPoints,customerPoints);
 
         int[][] unitTransportCostFirstStage = generateUnitVariableCosts(productionPoints,distributionPoints);//new int[plants][distributors];
         int[][] unitTransportCostSecondStage = generateUnitVariableCosts(distributionPoints,customerPoints);//new int[plants][distributors];
@@ -58,19 +58,13 @@ public class Generator {
         int[][] points = new int[numberOfPoints][2];
 
         for (int i = 0; i < numberOfPoints; i++) {
-            points[i] = generatePoint();
+            points[i] = Util.generatePoint();
         }
-        validatePoints(points);
+        Util.validatePoints(points);
         return points;
     }
 
-    /***/
-    private int[] generatePoint() {
-        IntUniform rand = new IntUniform(Constants.POINTS_LOWER_BOUND,Constants.POINTS_UPPER_BOUND);
-        int x = rand.next();
-        int y = rand.next();
-        return new int[]{x, y};
-    }
+
 
     /**
      * The fixed costs f_ij and g_jk are computed as b_ij X r_f and c_jk X r_g, respectively, where r_f
@@ -143,27 +137,5 @@ public class Generator {
             customerDemand[i] = Constants.FIXED_PLANT_SUPPLY;
         }
         return customerDemand;
-    }
-
-    /***/
-    public void validatePoints(int[][] source, int[][] target){
-        for (int i = 0; i < source.length; i++) {
-            for (int j = 0; j < target.length; j++) {
-                while(Arrays.equals(source[i],target[j])){
-                    target[j] = generatePoint();
-                }
-            }
-        }
-    }
-
-    /***/
-    public void validatePoints(int[][] source){
-        for (int i = 0; i < source.length-1; i++) {
-            for (int j = i+1; j < source.length; j++) {
-                while(Arrays.equals(source[i],source[j])){
-                    source[i] = generatePoint();
-                }
-            }
-        }
     }
 }

@@ -2,10 +2,12 @@ package dlpuertaj.optimization.utils;
 
 import dlpuertaj.optimization.domain.TwoStageFlowNetwork;
 import dlpuertaj.optimization.domain.tsFCTP;
+import unalcol.random.integer.IntUniform;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 
 public class Util {
 
@@ -130,5 +132,35 @@ public class Util {
      * */
     public void exportNetworkToTextFile(TwoStageFlowNetwork instance){
 
+    }
+
+    /***/
+    public static int[] generatePoint() {
+        IntUniform rand = new IntUniform(Constants.POINTS_LOWER_BOUND,Constants.POINTS_UPPER_BOUND);
+        int x = rand.next();
+        int y = rand.next();
+        return new int[]{x, y};
+    }
+
+    /***/
+    public static void validatePoints(int[][] source, int[][] target){
+        for (int i = 0; i < source.length; i++) {
+            for (int j = 0; j < target.length; j++) {
+                while(Arrays.equals(source[i],target[j])){
+                    target[j] = generatePoint();
+                }
+            }
+        }
+    }
+
+    /***/
+    public static void validatePoints(int[][] source){
+        for (int i = 0; i < source.length-1; i++) {
+            for (int j = i+1; j < source.length; j++) {
+                while(Arrays.equals(source[i],source[j])){
+                    source[i] = generatePoint();
+                }
+            }
+        }
     }
 }
