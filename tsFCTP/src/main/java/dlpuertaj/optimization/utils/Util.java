@@ -142,6 +142,19 @@ public class Util {
         return new int[]{x, y};
     }
 
+    /**
+     * Method that compares a given point with all the points in a matrix
+     * @param points
+     * @param p */
+    public static boolean validatePoint(int[][] points,int[] p, int numberOfPoints) {
+
+        for (int i = 0; i < numberOfPoints; i++) {
+            if(Arrays.equals(points[i],p))
+                return false;
+        }
+        return true;
+    }
+
     /***/
     public static void validatePoints(int[][] source, int[][] target){
         for (int i = 0; i < source.length; i++) {

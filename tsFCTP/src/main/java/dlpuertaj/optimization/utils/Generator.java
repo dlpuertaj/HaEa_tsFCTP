@@ -23,8 +23,10 @@ public class Generator {
         Util.validatePoints(productionPoints,customerPoints);
         Util.validatePoints(distributionPoints,customerPoints);
 
-        int[][] unitTransportCostFirstStage = generateUnitVariableCosts(productionPoints,distributionPoints);//new int[plants][distributors];
-        int[][] unitTransportCostSecondStage = generateUnitVariableCosts(distributionPoints,customerPoints);//new int[plants][distributors];
+        int[][] unitTransportCostFirstStage = generateUnitVariableCosts(productionPoints,distributionPoints);
+        //new int[plants][distributors];
+        int[][] unitTransportCostSecondStage = generateUnitVariableCosts(distributionPoints,customerPoints);
+        //new int[plants][distributors];
 
         int[][] fixedCostFirstStage = generateFixedCosts(unitTransportCostFirstStage,
                 Constants.FIXED_COST_LOWER_BOUND_FIRST_STAGE,Constants.FIXED_COST_UPPER_BOUND_FIRST_STAGE);//new int[plants][distributors];
@@ -55,13 +57,35 @@ public class Generator {
      * a discrete uniform distribution*/
     public int[][] generatePoints(int numberOfPoints){
 
+        int pointsGenerated = 0;
         int[][] points = new int[numberOfPoints][2];
 
         for (int i = 0; i < numberOfPoints; i++) {
-            points[i] = Util.generatePoint();
+            int[] point =  Util.generatePoint();
+            points[i] = point;
+            while(!Util.validatePoint(points,point,pointsGenerated)){
+                points[i] = Util.generatePoint();
+            }
+            pointsGenerated += 1;
         }
-        Util.validatePoints(points);
         return points;
+    }
+
+    /***/
+    public int[][] generatePoints(int numberOfPoints, int[][] points){
+
+        int counter = 0;
+        int[][] pointsGenerated = new int[numberOfPoints][2];
+
+        for (int i = 0; i < numberOfPoints; i++) {
+            int[] point =  Util.generatePoint();
+            pointsGenerated[i] = point;
+            while(!Util.validatePoint(points,point,counter+1) || !Util.validatePoint(pointsGenerated,point,counter)){
+                points[i] = Util.generatePoint();
+            }
+            counter += 1;
+        }
+        return pointsGenerated;
     }
 
 

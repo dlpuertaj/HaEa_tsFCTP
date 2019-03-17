@@ -8,12 +8,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class TestGenerator {
 
     Generator gen = new Generator();
+    public static final int NUMBER_OF_POINTS = 20;
     @Test
     public void testGeneratePoints(){
-        int[][] points = gen.generatePoints(10);
-        for (int[] p:points) {
+        int[][] points1 = gen.generatePoints(NUMBER_OF_POINTS);
+        int[][] points2 = gen.generatePoints(NUMBER_OF_POINTS,points1);
+        for (int[] p : points1) {
             System.out.println(Arrays.toString(p));
         }
-        assertEquals(10,points.length);
+        System.out.println("---------------");
+        for (int[] p : points2) {
+            System.out.println(Arrays.toString(p));
+        }
+        assertEquals(NUMBER_OF_POINTS,points1.length);
+        assertEquals(NUMBER_OF_POINTS,points2.length);
     }
 }
