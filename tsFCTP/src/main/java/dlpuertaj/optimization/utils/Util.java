@@ -149,8 +149,10 @@ public class Util {
     public static boolean validatePoint(int[][] points,int[] p, int numberOfPoints) {
 
         for (int i = 0; i < numberOfPoints; i++) {
-            if(Arrays.equals(points[i],p))
-                return false;
+            if(i < points.length) {
+                if (Arrays.equals(points[i], p))
+                    return false;
+            }
         }
         return true;
     }

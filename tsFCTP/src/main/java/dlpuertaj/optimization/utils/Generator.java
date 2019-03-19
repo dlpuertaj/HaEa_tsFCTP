@@ -52,13 +52,13 @@ public class Generator {
      * a discrete uniform distribution*/
     public int[][] generatePoints(int numberOfPoints, int[][] referencePointsOne, int[][] referencePointsTwo){
 
-        int pointsGenerated = 0;
+        int pointsGenerated = 1;
         int[][] points = new int[numberOfPoints][2];
 
         for (int i = 0; i < numberOfPoints; i++) {
             int[] point =  Util.generatePoint();
             points[i] = point;
-            while(!Util.validatePoint(points,point,pointsGenerated) ||
+            while(!Util.validatePoint(points,point,pointsGenerated-1) ||
                   !Util.validatePoint(referencePointsOne,point,pointsGenerated) ||
                   !Util.validatePoint(referencePointsTwo,point,pointsGenerated)){
                 points[i] = Util.generatePoint();
