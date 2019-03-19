@@ -14,14 +14,9 @@ public class Generator {
     public tsFCTP generateInstance(int plants, int distributors, int customers, int globalDemand){
         tsFCTP instance = new tsFCTP(plants,distributors,customers);
 
-        int[][] productionPoints = generatePoints(plants);
-        int[][] distributionPoints = generatePoints(distributors);
-        int[][] customerPoints = generatePoints(customers);
-
-        //TODO: unit test of points validations
-        Util.validatePoints(productionPoints,distributionPoints);
-        Util.validatePoints(productionPoints,customerPoints);
-        Util.validatePoints(distributionPoints,customerPoints);
+        int[][] productionPoints = generatePoints(plants, new int[plants][2],new int[plants][2]);
+        int[][] distributionPoints = generatePoints(distributors, productionPoints, new int[distributors][2]);
+        int[][] customerPoints = generatePoints(customers,distributionPoints,productionPoints);
 
         int[][] unitTransportCostFirstStage = generateUnitVariableCosts(productionPoints,distributionPoints);
         //new int[plants][distributors];
@@ -55,7 +50,7 @@ public class Generator {
 
     /**plants and depots have been randomly generated in the [-400, 400] x [-400, 400] square according to
      * a discrete uniform distribution*/
-    public int[][] generatePoints(int numberOfPoints){
+    public int[][] generatePoints(int numberOfPoints, int[][] referencePointsOne, int[][] referencePointsTwo){
 
         int pointsGenerated = 0;
         int[][] points = new int[numberOfPoints][2];
@@ -63,32 +58,15 @@ public class Generator {
         for (int i = 0; i < numberOfPoints; i++) {
             int[] point =  Util.generatePoint();
             points[i] = point;
-            while(!Util.validatePoint(points,point,pointsGenerated)){
+            while(!Util.validatePoint(points,point,pointsGenerated) ||
+                  !Util.validatePoint(referencePointsOne,point,pointsGenerated) ||
+                  !Util.validatePoint(referencePointsTwo,point,pointsGenerated)){
                 points[i] = Util.generatePoint();
             }
             pointsGenerated += 1;
         }
         return points;
     }
-
-    /***/
-    public int[][] generatePoints(int numberOfPoints, int[][] points){
-
-        int counter = 0;
-        int[][] pointsGenerated = new int[numberOfPoints][2];
-
-        for (int i = 0; i < numberOfPoints; i++) {
-            int[] point =  Util.generatePoint();
-            pointsGenerated[i] = point;
-            while(!Util.validatePoint(points,point,counter+1) || !Util.validatePoint(pointsGenerated,point,counter)){
-                points[i] = Util.generatePoint();
-            }
-            counter += 1;
-        }
-        return pointsGenerated;
-    }
-
-
 
     /**
      * The fixed costs f_ij and g_jk are computed as b_ij X r_f and c_jk X r_g, respectively, where r_f

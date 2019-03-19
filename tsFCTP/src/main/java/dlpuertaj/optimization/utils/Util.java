@@ -154,26 +154,4 @@ public class Util {
         }
         return true;
     }
-
-    /***/
-    public static void validatePoints(int[][] source, int[][] target){
-        for (int i = 0; i < source.length; i++) {
-            for (int j = 0; j < target.length; j++) {
-                while(Arrays.equals(source[i],target[j])){
-                    target[j] = generatePoint();
-                }
-            }
-        }
-    }
-
-    /***/
-    public static void validatePoints(int[][] source){
-        for (int i = 0; i < source.length-1; i++) {
-            for (int j = i+1; j < source.length; j++) {
-                while(Arrays.equals(source[i],source[j])){
-                    source[i] = generatePoint();
-                }
-            }
-        }
-    }
 }
