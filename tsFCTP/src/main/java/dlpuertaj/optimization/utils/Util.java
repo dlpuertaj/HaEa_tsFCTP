@@ -48,7 +48,7 @@ public class Util {
         StringBuilder sb = new StringBuilder();
         String NEWLINE = System.getProperty(Constants.STRING_BUILDER_NEW_LINE);
 
-        String filename = Constants.NEW_INSTANCE_FILE_PATH+instance.I+""+instance.J+""+instance.K+Constants.TXT;
+        String filename = Constants.NEW_INSTANCE_FILE_PATH+instance.I+"-"+instance.J+"-"+instance.K+Constants.TXT;
         try {
 
             sb.append(instance.I);
@@ -99,7 +99,7 @@ public class Util {
             bw = new BufferedWriter(fw);
             bw.write(sb.toString());
 
-            System.out.println("Done");
+            System.out.println(instance.I+"-"+instance.J+"-"+instance.K+"Done");
 
         } catch (IOException e) {
 
